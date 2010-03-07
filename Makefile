@@ -41,8 +41,14 @@ build:
 	$(CC) $(CFLAGS) -c $< -o $@
 
 %.h: %
-	cd `dirname "$<"`; xxd -i `basename "$<"` > `basename "$<"`.h
-	
+	@echo Dumping "$<"
+	@cd `dirname "$<"`; \
+	echo >$(shell basename $<).h "unsigned char" `echo $(shell basename $<) | sed 's/[^a-zA-Z0-9]/_/g'` "[] = {";  \
+	od -t x1 $(shell basename $<) | sed '$$d;s/^[^ ]* //;s/^/0x/;s/ /,0x/g;1,$$s/$$/,/' >>$(shell basename $<).h; \
+	echo >>$(shell basename $<).h "0 };" ; \
+	echo >>$(shell basename $<).h "unsigned int" `echo $(shell basename $<) | sed 's/[^a-zA-Z0-9]/_/g'`_len \
+		    "=" `wc -c $(shell basename $<) | sed 's/ .*//'` ";"
+
 
 source/display.o: source/display.c source/img/heli.png.h source/data/DejaVuSans-Bold.ttf.h
 
