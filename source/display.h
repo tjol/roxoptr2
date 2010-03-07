@@ -13,6 +13,7 @@
 
 void init_SDL();
 void paint_game();
+void paint_menu();
 void paint_banner(SDL_Surface *banner, int duration);
 SDL_Surface *img_from_mem(void *mem, int size, int alpha);
 

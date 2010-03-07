@@ -18,6 +18,7 @@
 #include "level.h"
 #include "display.h"
 #include "game.h"
+#include "menu.h"
 
 #define ITER_MIN_TICKS 15
 extern time_t iter_ticks;

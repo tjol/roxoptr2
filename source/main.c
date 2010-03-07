@@ -12,23 +12,31 @@ int main (int argc, char **argv)
     time_t iter_start, delta; /* times */
     
     init_SDL();
+    init_menu();
     
     thegame.xpos = thegame.ypos = 0;
     thegame.current_level = load_lv0();
     thegame.heli_xpos = thegame.current_level->heli_x0;
     thegame.heli_ypos = thegame.current_level->heli_y0;
     thegame.running = 1;
-    thegame.in_menu = 0;
+    thegame.in_menu = 1;
     
     while (thegame.running) {
 	iter_start = SDL_GetTicks();
 	
-	poll_events();
-	
 	/* do stuff */
-	game_tic();
-	
-	if(thegame.running) paint_game();
+	if (thegame.in_menu) {
+	    menu_tic();
+	} else {
+	    game_tic();
+	    if(thegame.running) {
+		paint_game();
+	    } else {
+		/* level code cannot quit! */
+		thegame.running = 1;
+		thegame.in_menu = 1;
+	    }
+	}
 	
 	delta = SDL_GetTicks() - iter_start;
 	if (delta < ITER_MIN_TICKS) {
@@ -36,6 +44,8 @@ int main (int argc, char **argv)
 	}
 	
 	iter_ticks = SDL_GetTicks() - iter_start;
+	
+	poll_events();
     }
     
     exit(0);
@@ -56,6 +66,9 @@ void poll_events()
 		    case SDLK_DOWN:	controls_held |= DIR_DOWN;	break;
 		    case SDLK_LEFT:	controls_held |= DIR_LEFT;	break;
 		    case SDLK_RIGHT:	controls_held |= DIR_RIGHT;	break;
+		    case SDLK_RETURN:
+		    case SDLK_SPACE:	controls_held |= CTRL_ENTER;	break;
+		    default: break;
 		};
 		break;;
 	    case SDL_KEYUP:
@@ -64,6 +77,9 @@ void poll_events()
 		    case SDLK_DOWN:	controls_held &=~DIR_DOWN;	break;
 		    case SDLK_LEFT:	controls_held &=~DIR_LEFT;	break;
 		    case SDLK_RIGHT:	controls_held &=~DIR_RIGHT;	break;
+		    case SDLK_RETURN:
+		    case SDLK_SPACE:	controls_held &=~CTRL_ENTER;	break;
+		    default: break;
 		};
 		break;;
 	    case SDL_QUIT:
@@ -82,6 +98,7 @@ void poll_events()
     if (held & WPAD_BUTTON_DOWN)	controls_held |= DIR_DOWN;
     if (held & WPAD_BUTTON_LEFT)	controls_held |= DIR_LEFT;
     if (held & WPAD_BUTTON_RIGHT)	controls_held |= DIR_RIGHT;
+    if (held & WPAD_BUTTON_A)		controls_held |= CTRL_ENTER;
     
     if (held & WPAD_BUTTON_HOME) {
 	thegame.running = 0;

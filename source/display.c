@@ -69,7 +69,7 @@ void init_SDL()
     }
     menu_font = TTF_OpenFontRW(SDL_RWFromMem(DejaVuSans_Bold_ttf,
 					     DejaVuSans_Bold_ttf_len),
-			       1, 16);
+			       1, 40);
     if (!menu_font) {
 	fprintf(stderr, "Unable to load menu font: %s\n", TTF_GetError());
 	exit(1);
@@ -103,6 +103,37 @@ void paint_game()
     
     SDL_BlitSurface(thegame.current_level->bg, &bg_rect, screen, NULL);
     SDL_BlitSurface(heli, NULL, screen, &heli_dest);
+    
+    SDL_Flip(screen);
+}
+
+void paint_menu()
+{
+    int i;
+    
+    SDL_Surface *s;
+    SDL_Rect dst;
+    SDL_Color black = {0,0,0}, grey = {0x60, 0x60, 0x60}, bg = {0xff, 0xff, 0xff};
+    Menu *m;
+    int y = 50;
+    
+    SDL_FillRect(screen, NULL, SDL_MapRGB(screen->format, 0xFF, 0xFF, 0xFF));
+    
+    for (i = 0, m = menu_current; i < 4, m != m->up; ++i) m = m->up;
+    
+    while (1) {
+	s = TTF_RenderText_Shaded(menu_font, m->text, (m == menu_current ? black : grey), bg);
+	dst.x = 320 - s->w/2;
+	dst.y = y;
+	y += 90;
+	
+	SDL_BlitSurface(s, NULL, screen, &dst);
+	SDL_FreeSurface(s);
+	
+	if (m->down == m) break;
+	
+	m = m->down;
+    }
     
     SDL_Flip(screen);
 }
