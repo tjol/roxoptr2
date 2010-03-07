@@ -11,8 +11,9 @@ int main (int argc, char **argv)
 {
     time_t iter_start, delta; /* times */
     
-    init_SDL();
     init_menu();
+    init_levels();
+    init_SDL();
     
     thegame.running = 1;
     thegame.in_menu = 1;
@@ -26,9 +27,9 @@ int main (int argc, char **argv)
 		menu_tic();
 	    } else {
 		game_tic();
-		if(thegame.running) {
+		if(thegame.running && iter_start >= sleep_until_) { /* active? */
 		    paint_game();
-		} else {
+		} else if (!thegame.running) {
 		    /* level code cannot quit! */
 		    thegame.running = 1;
 		    thegame.in_menu = 1;

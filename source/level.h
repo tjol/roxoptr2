@@ -55,4 +55,25 @@ inline int get_bit(Level *lv, int x, int y)
 
 #define GET_BIT(L,X,Y) (((L)->bits[(((L)->w/8)+(((L)->w%8)==0?0:1))*(Y)+(X)/8] >> ((X)%8)) & 1)
 
+typedef struct levellist_ LevelList;
+
+struct levellist_ {
+    Level *level;
+    
+    LevelList *prev;
+    LevelList *next;
+    
+    Level *(*load)(void);
+    
+    char *title;
+};
+
+extern LevelList *current_level;
+extern LevelList *levels;
+
+void init_levels();
+void del_levels();
+
+int start_level(LevelList *ll);
+
 #endif

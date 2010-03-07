@@ -4,7 +4,7 @@
 #include "main.h"
 
 typedef struct menu Menu;
-typedef void (*Menuaction_f)(void);
+typedef void (*Menuaction_f)(void*);
 
 struct menu {
     char *text;
@@ -13,6 +13,7 @@ struct menu {
     Menu *down;
     
     Menuaction_f exec;
+    void *exec_arg;
 };
 
 extern Menu *menu_root;

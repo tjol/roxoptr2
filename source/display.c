@@ -15,9 +15,6 @@ static void quit()
     if (heli) {
 	SDL_FreeSurface(heli);
     }
-    if (thegame.current_level) {
-	thegame.current_level->del(thegame.current_level);
-    }
     if(menu_font) {
 	TTF_CloseFont(menu_font);
 	TTF_CloseFont(small_font);
@@ -50,8 +47,6 @@ SDL_Surface *img_from_mem(void *mem, int size, int alpha)
 
 void init_SDL()
 {
-    SDL_RWops *rw;
-    
     if (SDL_Init(SDL_INIT_VIDEO) != 0) {
 	fprintf(stderr, "Unable to initialize SDL: %s\n", SDL_GetError());
 	exit(1);
@@ -121,7 +116,7 @@ void paint_menu()
     
     SDL_Surface *s;
     SDL_Rect dst;
-    SDL_Color black = {0,0,0}, grey = {0x60, 0x60, 0x60}, bg = {0xff, 0xff, 0xff};
+    SDL_Color red = {0xff,0,0}, grey = {0x60, 0x60, 0x60}, bg = {0xff, 0xff, 0xff};
     Menu *m;
     int y = 50;
     
@@ -130,7 +125,7 @@ void paint_menu()
     for (i = 0, m = menu_current; i < 4, m != m->up; ++i) m = m->up;
     
     while (1) {
-	s = TTF_RenderText_Shaded(menu_font, m->text, (m == menu_current ? black : grey), bg);
+	s = TTF_RenderText_Shaded(menu_font, m->text, (m == menu_current ? red : grey), bg);
 	dst.x = 320 - s->w/2;
 	dst.y = y;
 	y += 90;

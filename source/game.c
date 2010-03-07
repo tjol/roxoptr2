@@ -78,8 +78,9 @@ void game_tic()
     if (   thegame.heli_xpos >= lv->fin_x
 	|| thegame.heli_ypos >= lv->fin_y ) {
 	
-	thegame.running = 0;
 	paint_banner("You actually made it!", "WIN", 0, 255, 0, 5000);
+	
+	thegame.running = start_level(current_level->next);
     }
     
 }

@@ -54,7 +54,7 @@ roxoptr2.elf: $(OFILES) source/levels/lv0/lv0.o
 %.dol: %.elf
 	elf2dol $< $@
 
-roxoptr2: $(OFILES) source/levels/lv0/lv0.o
+roxoptr2: $(OFILES) source/levels/lv0/lv0.o source/levels/lv1/lv1.o
 	$(LD) $(LDFLAGS) $(LIBS) $^ -o $@
 
 wii:
