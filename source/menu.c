@@ -3,6 +3,8 @@
 Menu *menu_root;
 Menu *menu_current;
 
+extern Level *load_lv0();
+
 void menu_tic()
 {
     static int painted = 0;
@@ -30,6 +32,12 @@ void menu_tic()
 
 static void startgame()
 {
+    printf ("resetting game\n");
+    thegame.xpos = thegame.ypos = 0;
+    thegame.current_level = load_lv0();
+    thegame.heli_xpos = thegame.current_level->heli_x0;
+    thegame.heli_ypos = thegame.current_level->heli_y0;
+    thegame.running = 1;
     thegame.in_menu = 0;
 }
 

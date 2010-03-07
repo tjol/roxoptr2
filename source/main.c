@@ -3,8 +3,6 @@
 gamestate_t thegame;
 time_t iter_ticks = ITER_MIN_TICKS;
 
-extern Level *load_lv0();
-
 void poll_events();
 
 int main (int argc, char **argv)
@@ -14,11 +12,7 @@ int main (int argc, char **argv)
     init_SDL();
     init_menu();
     
-    thegame.xpos = thegame.ypos = 0;
-    thegame.current_level = load_lv0();
-    thegame.heli_xpos = thegame.current_level->heli_x0;
-    thegame.heli_ypos = thegame.current_level->heli_y0;
-    thegame.running = 1;
+        thegame.running = 1;
     thegame.in_menu = 1;
     
     while (thegame.running) {

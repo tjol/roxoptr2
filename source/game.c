@@ -13,7 +13,7 @@ void game_tic()
         
     Level *lv = thegame.current_level;
     
-    if (xpos == -1) {
+    if ((int)xpos != thegame.heli_xpos || (int)ypos != thegame.heli_ypos) {
 	xpos = thegame.heli_xpos;
 	ypos = thegame.heli_ypos;
     }
