@@ -25,7 +25,7 @@ ifeq ($(system),wii)
     MACHDEP	 = -DGEKKO -mrvl -mcpu=750 -meabi -mhard-float
     LIBS	:= -L$(PORTLIBS)/lib -L$(DEVKITPRO)/libogc/lib/wii \
 		   -lSDL -lSDL_image -lSDL_ttf \
-		   -lpng -ljpeg \
+		   -lpng -ljpeg -lfreetype \
 		   -lz -lfat -lwiiuse -lbte -logc -lm -lwiikeyboard
     INCLUDE  := -I$(PORTLIBS)/include -I$(DEVKITPRO)/libogc/include
     SDL_CFLAGS = 
