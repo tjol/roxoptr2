@@ -3,28 +3,28 @@
 static SDL_Surface *screen = NULL;
 static SDL_Surface *heli = NULL;
 
-SDL_Surface *win_banner = NULL;
-SDL_Surface *fail_banner = NULL;
 TTF_Font *menu_font = NULL;
+TTF_Font *small_font = NULL;
+TTF_Font *huge_font = NULL;
 
 #include "img/heli.png.h"
-#include "img/win.gif.h"
-#include "img/fail.gif.h"
 #include "data/DejaVuSans-Bold.ttf.h"
 
 static void quit()
 {
     if (heli) {
 	SDL_FreeSurface(heli);
-	SDL_FreeSurface(win_banner);
-	SDL_FreeSurface(fail_banner);
     }
     if (thegame.current_level) {
 	thegame.current_level->del(thegame.current_level);
     }
     if(menu_font) {
 	TTF_CloseFont(menu_font);
+	TTF_CloseFont(small_font);
+	TTF_CloseFont(huge_font);
 	menu_font = NULL;
+	small_font = NULL;
+	huge_font = NULL;
     }
     TTF_Quit();
     SDL_Quit();
@@ -49,7 +49,9 @@ SDL_Surface *img_from_mem(void *mem, int size, int alpha)
 }
 
 void init_SDL()
-{    
+{
+    SDL_RWops *rw;
+    
     if (SDL_Init(SDL_INIT_VIDEO) != 0) {
 	fprintf(stderr, "Unable to initialize SDL: %s\n", SDL_GetError());
 	exit(1);
@@ -67,11 +69,19 @@ void init_SDL()
 	fprintf(stderr, "Unable to initialize TTF subsystem: %s\n", TTF_GetError());
 	exit(1);
     }
-    menu_font = TTF_OpenFontRW(SDL_RWFromMem(DejaVuSans_Bold_ttf,
-					     DejaVuSans_Bold_ttf_len),
+    
+    menu_font = TTF_OpenFontRW(SDL_RWFromConstMem(DejaVuSans_Bold_ttf,
+						  DejaVuSans_Bold_ttf_len),
 			       1, 40);
-    if (!menu_font) {
-	fprintf(stderr, "Unable to load menu font: %s\n", TTF_GetError());
+    small_font= TTF_OpenFontRW(SDL_RWFromConstMem(DejaVuSans_Bold_ttf,
+						  DejaVuSans_Bold_ttf_len),
+			       1, 24);
+    huge_font = TTF_OpenFontRW(SDL_RWFromConstMem(DejaVuSans_Bold_ttf,
+						  DejaVuSans_Bold_ttf_len),
+			       1, 200);
+    
+    if (!(menu_font && small_font && huge_font)) {
+	fprintf(stderr, "Unable to load font: %s\n", TTF_GetError());
 	exit(1);
     }
     
@@ -82,8 +92,6 @@ void init_SDL()
     }
     
     heli = img_from_mem(heli_png, heli_png_len, 1);
-    win_banner = img_from_mem(win_gif, win_gif_len, 0);
-    fail_banner = img_from_mem(fail_gif, fail_gif_len, 0);
 }
 
 void paint_game()
@@ -138,9 +146,31 @@ void paint_menu()
     SDL_Flip(screen);
 }
 
-void paint_banner(SDL_Surface *banner, int duration)
+void paint_banner(char *text1, char *text2, int r2, int g2, int b2, int delay)
 {
-    SDL_BlitSurface(banner, NULL, screen, NULL);
+    SDL_Color bg = {0,0,0};
+    SDL_Color white = {255,255,255};
+    SDL_Color fg;
+    SDL_Surface *s;
+    SDL_Rect dst;
+    
+    fg.r = r2; fg.g = g2; fg.b = b2;
+    
+    SDL_FillRect(screen, NULL, SDL_MapRGB(screen->format, bg.r, bg.g, bg.b));
+    
+    s = TTF_RenderText_Shaded(small_font, text1, white, bg);
+    dst.x = 320 - s->w/2;
+    dst.y = 100;
+    SDL_BlitSurface(s, NULL, screen, &dst);
+    SDL_FreeSurface(s);
+    
+    s = TTF_RenderText_Shaded(huge_font, text2, fg, bg);
+    dst.x = 320 - s->w/2;
+    dst.y = 160;
+    SDL_BlitSurface(s, NULL, screen, &dst);
+    SDL_FreeSurface(s);
+    
     SDL_Flip(screen);
-    SDL_Delay(duration);
+    
+    sleep_for(delay);
 }

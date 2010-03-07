@@ -44,9 +44,7 @@ build:
 	cd `dirname "$<"`; xxd -i `basename "$<"` > `basename "$<"`.h
 	
 
-source/display.o: source/display.c \
-		  source/img/heli.png.h source/img/win.gif.h source/img/fail.gif.h \
-		  source/data/DejaVuSans-Bold.ttf.h
+source/display.o: source/display.c source/img/heli.png.h source/data/DejaVuSans-Bold.ttf.h
 
 source/levels/lv0/lv0.o: source/levels/lv0/lv0.c source/levels/lv0/lv0.gif.h
 

@@ -45,7 +45,7 @@ void game_tic()
 	|| thegame.heli_ypos+HELI_H > lv->h                                ) {
 	
 	thegame.running = 0;
-	paint_banner(fail_banner, 3000);
+	paint_banner("You hit an obstacle", "FAIL", 255, 0, 0, 3000);
 	
     }
     
@@ -79,7 +79,7 @@ void game_tic()
 	|| thegame.heli_ypos >= lv->fin_y ) {
 	
 	thegame.running = 0;
-	paint_banner(win_banner, 5000);
+	paint_banner("You actually made it!", "WIN", 0, 255, 0, 5000);
     }
     
 }

@@ -14,11 +14,9 @@
 void init_SDL();
 void paint_game();
 void paint_menu();
-void paint_banner(SDL_Surface *banner, int duration);
+void paint_banner(char *text1, char *text2, int r2, int g2, int b2, int delay);
 SDL_Surface *img_from_mem(void *mem, int size, int alpha);
 
-extern SDL_Surface *win_banner;
-extern SDL_Surface *fail_banner;
 extern TTF_Font *menu_font;
 
 #endif
