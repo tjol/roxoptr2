@@ -41,14 +41,8 @@ build:
 	$(CC) $(CFLAGS) -c $< -o $@
 
 %.h: %
-	@echo Dumping "$<"
-	@cd `dirname "$<"`; \
-	echo >$(shell basename $<).h "unsigned char" `echo $(shell basename $<) | sed 's/[^a-zA-Z0-9]/_/g'` "[] = {";  \
-	od -t x1 $(shell basename $<) | sed '$$d;s/^[^ ]* //;s/^/0x/;s/ /,0x/g;1,$$s/$$/,/' >>$(shell basename $<).h; \
-	echo >>$(shell basename $<).h "0 };" ; \
-	echo >>$(shell basename $<).h "unsigned int" `echo $(shell basename $<) | sed 's/[^a-zA-Z0-9]/_/g'`_len \
-		    "=" `wc -c $(shell basename $<) | sed 's/ .*//'` ";"
-
+	cd `dirname "$<"`; xxd -i `basename "$<"` > `basename "$<"`.h
+	
 
 source/display.o: source/display.c source/img/heli.png.h source/data/DejaVuSans-Bold.ttf.h
 
@@ -68,7 +62,7 @@ wii:
 
     
 clean:
-	rm -f roxoptr2 source/*.o source/levels/lv0/lv0.o source/*~ roxoptr2.elf roxoptr2.dol source/img/*.h
+	rm -f roxoptr2 source/*.o source/levels/lv0/lv0.o source/*~ roxoptr2.elf roxoptr2.dol source/img/*.h source/data/*.h
 
 
 .PHONY: clean
