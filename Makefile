@@ -48,7 +48,7 @@ source/display.o: source/display.c source/img/heli.png.h source/data/DejaVuSans-
 
 source/levels/lv0/lv0.o: source/levels/lv0/lv0.c source/levels/lv0/lv0.gif.h
 
-roxoptr2.elf: $(OFILES) source/levels/lv0/lv0.o
+roxoptr2.elf: $(OFILES) source/levels/lv0/lv0.o source/levels/lv1/lv1.o
 	$(LD) $^ $(LDFLAGS) $(LIBS) -o $@
 
 %.dol: %.elf
@@ -62,7 +62,7 @@ wii:
 
     
 clean:
-	rm -f roxoptr2 source/*.o source/levels/lv0/lv0.o source/*~ roxoptr2.elf roxoptr2.dol source/img/*.h source/data/*.h
+	rm -f roxoptr2 source/*.o source/levels/*/*.o source/*~ roxoptr2.elf roxoptr2.dol source/img/*.h source/data/*.h
 
 
 .PHONY: clean
