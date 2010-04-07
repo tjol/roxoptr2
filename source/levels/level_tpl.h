@@ -1,3 +1,12 @@
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+ * Copyright (C) 2010 Thomas Jollans                                       *
+ *                                                                         *
+ * This program is free software. You may redistribute and/or modify       *
+ * it under the terms of the ``MIT License'' as it is reproduced in the    *
+ * file ``COPYING''.                                                       *
+ *                                                                         *
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
 #include <stdlib.h>
 #include <SDL/SDL.h>
 #include <SDL/SDL_image.h>
