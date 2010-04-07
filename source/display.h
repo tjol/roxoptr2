@@ -20,3 +20,4 @@ SDL_Surface *img_from_mem(void *mem, int size, int alpha);
 extern TTF_Font *menu_font;
 
 #endif
+
