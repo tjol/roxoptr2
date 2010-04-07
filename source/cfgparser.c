@@ -62,12 +62,16 @@ void read_cfg_file(FILE *f, struct cfg_section *sections,
 		if (s == NULL) { /* not in a known section => ignore */
 		    break;
 		}
+		cp = buf1-1;
 		for (cpi = ln, cpo = buf1;
 		     *cpi != '\0' && *cpi != '=';
-		     *(cpo++) = *(cpi++));
-		*cpo = '\0';
+		     *(cpo++) = *(cpi++))
+			if (!isspace(*cpi))
+			    cp = cpo;
+		*(cp+1) = '\0';
 		if (*cpi == '=') {
-		    for (cpi++, cpo = buf2;
+		    while (isspace(*(++cpi)));
+		    for (cpo = buf2;
 			 *cpi != '\0';
 			 *(cpo++) = *(cpi++));
 		    *cpo = '\0';

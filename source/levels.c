@@ -102,6 +102,8 @@ void init_levels()
 	    }
 
 	    if (de.d_type == DT_DIR) {
+		if (   strcmp(de.d_name, ".") == 0
+		    || strcmp(de.d_name, "..") == 0 ) continue;
 		dirname = malloc(ld_n_len + 258);
 		strcpy(dirname, ld_dir);
 		strcat(dirname, "/");
@@ -235,18 +237,18 @@ load_callback(struct cfg_section *sect, const char *key, const char *value, void
 	    break;;
 	case 3: /* [controls] */
 	    switch(value[0]) {
-		case '1':
-		case 'y': 
-		case 'Y': 
-		case 't': 
-		case 'T': 
-		    ok = 1;
+		case '0':
+		case 'n': 
+		case 'N': 
+		case 'f': 
+		case 'F': 
+		    ok = 0;
 		    break;;
 		default:
-		    if (strcasecmp(value, "on") == 0) {
-			ok = 1;
-		    } else {
+		    if (strcasecmp(value, "off") == 0) {
 			ok = 0;
+		    } else {
+			ok = 1;
 		    }
 	    }
 	    if (!ok) break;
