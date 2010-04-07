@@ -29,8 +29,8 @@ struct level_ { /* Level */
     double visible_t;	/* percent to be visible at all times, upward */
     double visible_b;   /*                                     downward  */
     
-    int fin_x;
-    int fin_y;
+    unsigned int fin_x;
+    unsigned int fin_y;
     
     unsigned int heli_x0;
     unsigned int heli_y0;

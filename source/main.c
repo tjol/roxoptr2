@@ -12,8 +12,8 @@ int main (int argc, char **argv)
     time_t iter_start, delta; /* times */
     
     init_menu();
-    init_levels();
     init_SDL();
+    init_levels();
     
     thegame.running = 1;
     thegame.in_menu = 1;
