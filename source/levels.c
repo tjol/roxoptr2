@@ -384,6 +384,8 @@ _load_pbm(size_t (*get_more)(unsigned char **, size_t *, void *),
     unsigned char *end;
     size_t len;
 
+    int is_ascii;
+
     int eofp = 0;
 
     int in_header = 1;
@@ -392,6 +394,7 @@ _load_pbm(size_t (*get_more)(unsigned char **, size_t *, void *),
     int i;
 
     unsigned char *bits;
+    unsigned char *lastplus1;
     unsigned char *thisbyte;
     int w, h;
     int x;
@@ -400,11 +403,15 @@ _load_pbm(size_t (*get_more)(unsigned char **, size_t *, void *),
     get_more(&buf, &len, arg);
     end = buf + len;
 
-    if (! (buf[0] == 'P' && buf[1] == '1') ) {
+    if (buf[0] == 'P' && buf[1] == '1') {
+	is_ascii = 1;
+    } else if (buf[0] == 'P' && buf[1] == '4') {
+	is_ascii = 0;
+    } else {
 	fprintf(stderr, "Error: This is not a PBM file.\n");
-	for (; buf != end; ++buf) putchar(*buf);
 	return 0;
     }
+
     buf += 2;
     ignore_line = 1;
 
@@ -433,8 +440,10 @@ _load_pbm(size_t (*get_more)(unsigned char **, size_t *, void *),
 		sscanf(size_line, "%d %d", &w, &h);
 		l->w = w;
 		l->h = h;
-		bits = malloc(((w+7) >> 3) * h);
+		/*temp*/x = ((w+7) >> 3) * h;
+		bits = malloc(x);
 		thisbyte = bits;
+		lastplus1 = bits + x;
 	    }
 	    size_line[i++] = *buf;
 	    ++buf;
@@ -444,7 +453,7 @@ _load_pbm(size_t (*get_more)(unsigned char **, size_t *, void *),
     x = 0;
     shift = 0;
 
-    while (!eofp) {
+    while ((!eofp) && thisbyte != lastplus1) {
 	if (buf == end) {
 	    get_more(&buf, &len, arg);
 	    end = buf + len;
@@ -453,21 +462,26 @@ _load_pbm(size_t (*get_more)(unsigned char **, size_t *, void *),
 		break;
 	    }
 	}
-	switch (*(buf++)) {
-	    case ' ':
-	    case '\n':
-	    case '\t':
-		break;
-	    case '1':
-		*thisbyte |= 1 << shift;
-	    case '0':
-		if ( (++x) == w		/* end of line */
-		   ||(++shift) > 7) {	/* end of byte */
-		    *(++thisbyte) = 0;
-		    shift = 0;
-		}
-		break;
-	}
+	if (is_ascii)
+	    switch (*(buf++)) {
+		case ' ':
+		case '\n':
+		case '\t':
+		    break;
+		case '1':
+		    *thisbyte |= 1 << shift;
+		case '0':
+		    if ( (++x) == w		/* end of line */
+		       ||(++shift) > 7) {	/* end of byte */
+			*(++thisbyte) = 0;
+			shift = 0;
+		    }
+		    break;
+	    }
+	else
+	    /* P4 netpbm fills up the last byte of a row just like
+	     * xbm, so we don't have to do any work ourselves. */
+	    *(thisbyte++) = *(buf++); 
     }
 
     l->bits = bits;
