@@ -14,8 +14,12 @@
 #include <sys/types.h>
 
 #include "cfgparser.h"
-#include <unistd.h>
-#include <dirent.h>
+#ifdef _WINDOWS
+#  include <direct.h>
+#  define PATH_MAX 1024
+#else
+#  include <unistd.h>
+#endif
 #include <stdio.h>
 #include <limits.h>
 #include <errno.h>
@@ -183,7 +187,12 @@ load_callback(struct cfg_section *sect, const char *key, const char *value, void
 		    exit(1);
 		}
 	    } else if (strcasecmp(key, "background") == 0) {
-		/* bg_l = IMG_Load(value); */
+		/* IMG_Load doesn't exist on the Wii.
+		 * the second approach causes problems on Windows, for
+		 * some reason, but works file on UNIX */
+#	      ifndef WII
+		bg_l = IMG_Load(value);
+#	      else
 		fp = fopen(value, "rb");
 		if (!fp) {
 		    perror(0);
@@ -191,6 +200,7 @@ load_callback(struct cfg_section *sect, const char *key, const char *value, void
 		}
 		rw = SDL_RWFromFP(fp, 1);
 		bg_l = IMG_Load_RW(rw, 0);
+#	      endif
 		if (!bg_l) {
 		    fprintf(stderr, "Error loading background: %s\n", IMG_GetError());
 		    exit(1);
