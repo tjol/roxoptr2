@@ -88,13 +88,17 @@ void init_SDL()
 	fprintf(stderr, "Unable to load font: %s\n", TTF_GetError());
 	exit(1);
     }
+
+# ifndef WII
+    SDL_WM_SetCaption("roxoptr2", "roxoptr2");
+# endif   
     
     screen = SDL_SetVideoMode(SCREEN_W, SCREEN_H, SCREEN_DEPTH, SDL_DOUBLEBUF | SDL_HWSURFACE);
     if (!screen) {
 	fprintf(stderr, "Unable to set video: %s\n", SDL_GetError());
 	exit(1);
     }
-    
+
     heli = img_from_mem(heli_png, heli_png_len, 1);
 }
 
