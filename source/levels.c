@@ -12,18 +12,20 @@
 
 #include <sys/types.h>
 
-#ifndef WII
-# include "cfgparser.h"
-# include <unistd.h>
-# include <dirent.h>
-# include <stdio.h>
-# include <limits.h>
-# include <errno.h>
-# include <string.h>
-# include <zlib.h>
-#endif
+#include "cfgparser.h"
+#include <unistd.h>
+#include <dirent.h>
+#include <stdio.h>
+#include <limits.h>
+#include <errno.h>
+#include <string.h>
+#include <zlib.h>
 
 #include <SDL/SDL_image.h>
+
+#ifdef WII
+#include <fat.h>
+#endif
 
 #define R_CHUNK 512
 
@@ -35,9 +37,7 @@ LevelList *current_level = NULL;
 
 void free_levels();
 
-#ifndef WII
 static LevelList *load_level_from_dir(const char *dirname, LevelList *prev);
-#endif
 
 void init_levels()
 {
@@ -45,7 +45,6 @@ void init_levels()
     LevelList *prev;
     LevelList *cur;
 
-#   ifndef WII
     DIR *lvdat;
     char *cwda;
     char *ld_dir;
@@ -53,7 +52,6 @@ void init_levels()
     char *dirname;
     struct dirent de;
     struct dirent *dep;
-#   endif
     
     lv0 = malloc(sizeof(LevelList));
     lv1 = malloc(sizeof(LevelList));
@@ -70,10 +68,19 @@ void init_levels()
     lv1->load = &load_lv1;
     lv1->title = "Level #1";
 
-#   ifndef WII
     cur = NULL;
     prev = lv1;
     
+#   ifdef WII
+    printf("Printing things ?\n");
+    SDL_Delay(1000);
+    if (!fatInitDefault()) {
+	printf("FAT init failed.\n");
+	SDL_Delay(3000);
+    }
+    cwda = malloc(256);
+    strcpy(cwda, "/roxoptr2");
+#   else
     /* find levels */
     cwda = malloc(256);
     if(!getcwd(cwda, 246)) { /* +10 ch extra for '/leveldata' */
@@ -92,6 +99,7 @@ void init_levels()
 		exit(1);
 	}
     }
+#   endif
     ld_dir = cwda;
     cwda = strdup(ld_dir);
     strcat(ld_dir, "/leveldata");
@@ -110,7 +118,10 @@ void init_levels()
 		break;
 	    }
 
-	    if (de.d_type == DT_DIR) {
+#	   ifdef _DIRENT_HAVE_D_TYPE
+	    if (de.d_type == DT_DIR)
+#	   endif
+	    {
 		if (   strcmp(de.d_name, ".") == 0
 		    || strcmp(de.d_name, "..") == 0 ) continue;
 		dirname = malloc(ld_n_len + 258);
@@ -129,8 +140,6 @@ void init_levels()
     chdir(cwda);
     free(cwda);
     free(ld_dir);
-
-#   endif
 
     current_level = levels = lv0;
     
@@ -170,7 +179,6 @@ int start_level(LevelList *ll)
     return 1;
 }
 
-#ifndef WII
 int load_gzpbm(const char *fname, Level *l);
 int load_zpbm(const char *fname, Level *l);
 int load_pbm(const char *fname, Level *l);
@@ -185,6 +193,8 @@ load_callback(struct cfg_section *sect, const char *key, const char *value, void
     unsigned int xu, yu;
     double visible;
     int ok;
+    FILE *fp;
+    SDL_RWops *rw;
 
     switch (sect->id) {
 	case 1: /* [level] */
@@ -206,7 +216,14 @@ load_callback(struct cfg_section *sect, const char *key, const char *value, void
 		    exit(1);
 		}
 	    } else if (strcasecmp(key, "background") == 0) {
-		bg_l = IMG_Load(value);
+		/* bg_l = IMG_Load(value); */
+		fp = fopen(value, "rb");
+		if (!fp) {
+		    perror(0);
+		    exit(1);
+		}
+		rw = SDL_RWFromFP(fp, 1);
+		bg_l = IMG_Load_RW(rw, 0);
 		if (!bg_l) {
 		    fprintf(stderr, "Error loading background: %s\n", IMG_GetError());
 		    exit(1);
@@ -571,6 +588,4 @@ _read_zlib(unsigned char **pbuf, size_t *plen, void *arg)
 }
 
 #endif
-
-#endif /* !WII */
 

@@ -7,8 +7,6 @@
  *                                                                         *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-#ifndef WII
-
 #include "cfgparser.h"
 
 #include <string.h>
@@ -91,6 +89,4 @@ void read_cfg_file(FILE *f, struct cfg_section *sections,
 	}
     }
 }
-
-#endif
 
