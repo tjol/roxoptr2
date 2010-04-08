@@ -61,22 +61,22 @@ void game_tic()
     /**** adjust visible area **************************/
     
     if (   (delta = SCREEN_W - thegame.heli_xpos + thegame.xpos
-		    - (lv->visible_r * SCREEN_W)) < 0
+		    - (int)(lv->visible_r * SCREEN_W)) < 0
 	&&  thegame.xpos + SCREEN_W < lv->w ) {
 	    thegame.xpos -= delta; /* delta is negative */
     }
     if (   (delta = thegame.heli_xpos - thegame.xpos
-		    - (lv->visible_l * SCREEN_W)) < 0
+		    - (int)(lv->visible_l * SCREEN_W)) < 0
 	&&  thegame.xpos > 0 ) {
 	    thegame.xpos += delta; /* delta is negative */
     }
     if (   (delta = SCREEN_H - thegame.heli_ypos + thegame.ypos
-		    - (lv->visible_b * SCREEN_H)) < 0
+		    - (int)(lv->visible_b * SCREEN_H)) < 0
 	&&  thegame.ypos + SCREEN_H < lv->h ) {
 	    thegame.ypos -= delta; /* delta is negative */
     }
     if (   (delta = thegame.heli_ypos - thegame.ypos
-		    - (lv->visible_t * SCREEN_H)) < 0
+		    - (int)(lv->visible_t * SCREEN_H)) < 0
 	&&  thegame.ypos > 0 ) {
 	    thegame.ypos += delta; /* delta is negative */
     }

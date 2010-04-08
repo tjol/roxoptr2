@@ -131,7 +131,8 @@ void paint_menu()
     
     SDL_FillRect(screen, NULL, SDL_MapRGB(screen->format, 0xFF, 0xFF, 0xFF));
     
-    for (i = 0, m = menu_current; i < 4, m != m->up; ++i) m = m->up;
+    m = menu_current;
+    for (i = 0; i < 3 && m != m->up; ++i) m = m->up;
     
     while (1) {
 	s = TTF_RenderText_Shaded(menu_font, m->text, (m == menu_current ? red : grey), bg);
