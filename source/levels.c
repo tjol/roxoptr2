@@ -31,7 +31,7 @@ LevelList *current_level = NULL;
 
 void free_levels();
 
-static LevelList *load_level_from_dir(const char *dirname, LevelList *prev);
+static LevelList *load_level_from_cfg(char *filename, LevelList *prev);
 
 void init_levels()
 {
@@ -39,13 +39,12 @@ void init_levels()
     LevelList *prev;
     LevelList *cur;
 
-    DIR *lvdat;
+    FILE *fp_levels_list;
+    char lbuf[256];
+    char *line;
+    char *cp, *cp_nw;
     char *cwda;
-    char *ld_dir;
-    int ld_n_len;
-    char *dirname;
-    struct dirent de;
-    struct dirent *dep;
+    char *cwd_end;
     
     lv0 = malloc(sizeof(LevelList));
     lv1 = malloc(sizeof(LevelList));
@@ -67,9 +66,8 @@ void init_levels()
     
     init_fs();
 
-    /* find levels */
-    cwda = malloc(256);
-    if(!getcwd(cwda, 246)) { /* +10 ch extra for '/leveldata' */
+    cwda = malloc(512);
+    if(!getcwd(cwda, 246)) { /* leave room for /leveldata/[etc etc] */
 	if (errno == ERANGE) {
 	    /* allocate longer buffer.
 	     * on linux, this is 4K.  */
@@ -85,47 +83,34 @@ void init_levels()
 		exit(1);
 	}
     }
+    strcat(cwda, "/leveldata/");
+    for(cwd_end = cwda; *cwd_end; ++cwd_end);
 
-    ld_dir = cwda;
-    cwda = strdup(ld_dir);
-    strcat(ld_dir, "/leveldata");
-    ld_n_len = strlen(ld_dir);
-
-    if (!(lvdat = opendir(ld_dir))) {
-	fprintf(stderr, "The leveldata/ directory is missing. What a shame.\n");
+    fp_levels_list = fopen("leveldata/levels.list", "r");
+    if (!fp_levels_list) {
+	perror(0);
     } else {
-	for (;;) {
-	    if (readdir_r(lvdat, &de, &dep) != 0) {
-		/* error */
-		break;
-	    }
-	    if (dep == NULL) {
-		/* done */
-		break;
+	while (line = fgets(lbuf, 256, fp_levels_list)) {
+	    /* strip spaces */
+	    while (isspace(*line)) line++;
+	    cp_nw = line-1;
+	    for (cp = line; *cp != '\0'; ++cp) if (!isspace(*cp)) cp_nw = cp;
+	    *(cp_nw+1) = '\0';
+
+	    if (line[0] == '\0') continue;
+
+	    strcpy(cwd_end, line);
+
+	    cur = load_level_from_cfg(cwda, prev);
+	    if (cur) {
+		prev->next = cur;
+		prev = cur;
 	    }
 
-#	   ifdef _DIRENT_HAVE_D_TYPE
-	    if (de.d_type == DT_DIR)
-#	   endif
-	    {
-		if (   strcmp(de.d_name, ".") == 0
-		    || strcmp(de.d_name, "..") == 0 ) continue;
-		dirname = malloc(ld_n_len + 258);
-		strcpy(dirname, ld_dir);
-		strcat(dirname, "/");
-		strcat(dirname, de.d_name);
-		if (cur = load_level_from_dir(dirname, prev)) {
-		    /* success ! */
-		    prev->next = cur;
-		    prev = cur;
-		}
-		free(dirname);
-	    }
+	    *cwd_end = '\0';
 	}
     }
-    chdir(cwda);
     free(cwda);
-    free(ld_dir);
 
     current_level = levels = lv0;
     
@@ -286,10 +271,10 @@ _del_level(Level *l)
 }
 
 static LevelList *
-load_level_from_dir(const char *dirname, LevelList *prev)
+load_level_from_cfg(char *filename, LevelList *prev)
 {
     FILE *f_cfg;
-    /*char *f_cfg_name;*/
+    char *cp, *cp0;
 
     LevelList *ll;
     Level *l;
@@ -301,11 +286,16 @@ load_level_from_dir(const char *dirname, LevelList *prev)
 	{ 0, NULL } /* sentinel */
     };
 
-    chdir(dirname);
-    if (!(f_cfg = fopen("level.cfg", "r"))) {
-	fprintf(stderr, "Failed to load %s. Continuing...\n", dirname);
+    if (!(f_cfg = fopen(filename, "r"))) {
+	fprintf(stderr, "Failed to load %s. Continuing...\n", filename);
 	return NULL;
     }
+
+    /* chdir to the right place, since paths are relative */
+    for (cp = filename; *cp; ++cp) if (*cp == '/') cp0 = cp;
+    *cp0 = '\0';
+    chdir(filename);
+    *cp0 = '/';
 
     /* create scratch Level/LevelList */
     ll = malloc(sizeof(LevelList));
