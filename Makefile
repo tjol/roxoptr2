@@ -48,7 +48,7 @@ source/display.o: source/display.c source/img/heli.png.h source/data/DejaVuSans-
 
 source/levels/lv0/lv0.o: source/levels/lv0/lv0.c source/levels/lv0/lv0.gif.h
 
-roxoptr2.elf: $(OFILES) source/levels/lv0/lv0.o source/levels/lv1/lv1.o
+roxoptr2.elf: $(OFILES) source/levels/lv0/lv0.o
 	$(LD) $^ $(LDFLAGS) $(LIBS) -o $@
 
 %.dol: %.elf

@@ -28,7 +28,6 @@
 #include <SDL/SDL_image.h>
 
 extern Level *load_lv0();
-extern Level *load_lv1();
 
 LevelList *levels = NULL;
 LevelList *current_level = NULL;
@@ -39,7 +38,7 @@ static LevelList *load_level_from_cfg(char *filename, LevelList *prev);
 
 void init_levels()
 {
-    LevelList *lv0, *lv1;
+    LevelList *lv0;
     LevelList *prev;
     LevelList *cur;
 
@@ -51,22 +50,15 @@ void init_levels()
     char *cwd_end;
     
     lv0 = malloc(sizeof(LevelList));
-    lv1 = malloc(sizeof(LevelList));
     
     lv0->level = NULL;
     lv0->prev = NULL;
-    lv0->next = lv1;
+    lv0->next = NULL;
     lv0->load = &load_lv0;
     lv0->title = "Level #0";
     
-    lv1->level = NULL;
-    lv1->prev = lv0;
-    lv1->next = NULL;
-    lv1->load = &load_lv1;
-    lv1->title = "Level #1";
-
     cur = NULL;
-    prev = lv1;
+    prev = lv0;
     
     init_fs();
 
