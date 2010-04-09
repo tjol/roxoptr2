@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<app version="1">
+    <name>roxoptr2</name>
+    <coder>Thomas Jollans</coder>
+    <version>0.2~a1</version>
+    <release_date>201004091200</release_date>
+    <short_description>Helicopter fun.</short_description>
+    <long_description>You fly a 2D helicopter around 2D obstacles.
+	Don't laugh, it's not that easy! Finally also on the Wii, a successor to the
+	completely unknown rockopter script. Have fun!
+    </long_description>
+</app>
+
