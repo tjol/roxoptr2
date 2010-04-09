@@ -1,0 +1,24 @@
+    /====================================================\
+    ====================== ROXOPTR2 ======================
+    \====================================================/
+
+ROXOPTR2 is a simple SDL-based helicopter game similar to its amazingly
+simple Python/Tkinter-based predecessor, rockopter.
+You steer the helicopter around obstacles using your arrow keys or
+(on the Wii) the D-pad on your primary WiiMote. 
+Leaving the playing field or running into obstacles is fatal. Be sure to
+note that an obstacle might just look like an obstacle but actually allow
+you to pass.
+
+Roxoptr2 is known to run on the Wii with Homebrew Channel, on ix86 and
+amd64 Linux, i386 FreeBSD, and on Microsoft Windows. It should also
+run on any other POSIX-compatible system that is supported by SDL, SDL_image
+and SDL_ttf.
+
+
+    ================= COPYRIGHT =================
+
+Roxoptr2 is (c) 2010 Thomas Jollans.
+This program is free software released under the terms of the MIT license.
+For details, see COPYING.
+
