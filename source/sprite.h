@@ -7,23 +7,30 @@
  *                                                                         *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-#ifndef R_DISPLAY_H_
-#define R_DISPLAY_H_
-
-#define SCREEN_W 640
-#define SCREEN_H 480
-#define SCREEN_DEPTH 32
+#ifndef R_SPRITE_H
+#define R_SPRITE_H
 
 #include <SDL/SDL.h>
-#include <SDL/SDL_ttf.h>
 
-void init_SDL();
-void paint_game();
-void paint_menu();
-void paint_banner(char *text1, char *text2, int r2, int g2, int b2, int delay);
-SDL_Surface *img_from_mem(void *mem, int size, int alpha);
+struct sprite_point {
+    int relx;
+    int rely;
+};
 
-extern TTF_Font *menu_font;
+struct sprite {
+    SDL_Surface **frames;
+    int n_frames;
+    time_t frame_len;
+
+    struct sprite_point *coll_checkpts;
+    int n_coll_checkpts;
+
+    void (*free_data)(struct sprite*);
+};
+
+struct sprite *load_heli(void);
+
+extern struct sprite *main_sprite;
 
 #endif
 

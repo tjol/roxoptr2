@@ -9,21 +9,22 @@
 
 #include <zlib.h>
 #include "main.h"
+#include "sprite.h"
 
 static SDL_Surface *screen = NULL;
-static SDL_Surface *heli = NULL;
 
 TTF_Font *menu_font = NULL;
 TTF_Font *small_font = NULL;
 TTF_Font *huge_font = NULL;
 
-#include "img/heli.png.h"
 #include "data/DejaVuSans-Bold.ttf.h"
 
 static void quit()
 {
-    if (heli) {
-	SDL_FreeSurface(heli);
+    if (main_sprite) {
+	main_sprite->free_data(main_sprite);
+	free(main_sprite);
+	main_sprite = NULL;
     }
     if(menu_font) {
 	TTF_CloseFont(menu_font);
@@ -125,7 +126,7 @@ void init_SDL()
 	exit(1);
     }
 
-    heli = img_from_mem(heli_png, heli_png_len, 1);
+    main_sprite = load_heli();
 }
 
 void paint_game()
@@ -140,11 +141,11 @@ void paint_game()
     
     heli_dest.x = thegame.heli_xpos - thegame.xpos;
     heli_dest.y = thegame.heli_ypos - thegame.ypos;
-    heli_dest.w = HELI_W;
-    heli_dest.h = HELI_H;
+    /*heli_dest.w = HELI_W;
+    heli_dest.h = HELI_H;*/
     
     SDL_BlitSurface(thegame.current_level->bg, &bg_rect, screen, NULL);
-    SDL_BlitSurface(heli, NULL, screen, &heli_dest);
+    SDL_BlitSurface(main_sprite->frames[0], NULL, screen, &heli_dest);
     
     SDL_Flip(screen);
 }

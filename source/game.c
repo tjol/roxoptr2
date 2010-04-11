@@ -9,6 +9,7 @@
 
 #include "game.h"
 #include "main.h"
+#include "sprite.h"
 
 directional_t controls_held = 0;
 
@@ -16,6 +17,8 @@ void game_tic()
 {
     double vx, vy;
     int delta;
+    int collision;
+    int i;
     
     static double xpos = -1;
     static double ypos = -1;
@@ -45,17 +48,15 @@ void game_tic()
     
     /**** check for collisions *************************/
     
-    /* checking the 4 corners should do the trick */
-    if (   GET_BIT(lv, thegame.heli_xpos,        thegame.heli_ypos)
-	|| GET_BIT(lv, thegame.heli_xpos+HELI_W, thegame.heli_ypos)
-	|| GET_BIT(lv, thegame.heli_xpos+HELI_W, thegame.heli_ypos+HELI_H)
-	|| GET_BIT(lv, thegame.heli_xpos,        thegame.heli_ypos+HELI_H)
-	|| thegame.heli_xpos+HELI_W > lv->w
-	|| thegame.heli_ypos+HELI_H > lv->h                                ) {
-	
+    collision = 0;
+    for (i=0; i < main_sprite->n_coll_checkpts; ++i) {
+	collision |= GET_BIT(lv, thegame.heli_xpos + main_sprite->coll_checkpts[i].relx,
+				 thegame.heli_ypos + main_sprite->coll_checkpts[i].rely);
+    }
+
+    if (collision) {
 	thegame.running = 0;
 	paint_banner("You hit an obstacle", "FAIL", 255, 0, 0, 3000);
-	
     }
     
     /**** adjust visible area **************************/
