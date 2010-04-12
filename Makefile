@@ -1,11 +1,12 @@
 CC	= $(PREFIX)gcc
 LD	= $(CC)
 
-CFLAGS	 = -g -O2 -Wall $(MACHDEP) $(INCLUDE) $(MACROS) $(SDL_CFLAGS)
+CFLAGS	 = -g -Wall -std=c99 -pedantic -D_XOPEN_SOURCE=500 $(MACHDEP) $(INCLUDE) $(MACROS) $(SDL_CFLAGS)
 LDFLAGS  = -g $(MACHDEP)
-LIBS	 = $(shell sdl-config --libs) -lSDL_image -lSDL_ttf -lm
+LIBS	 = -lSDL -lSDL_image -lSDL_ttf -lm
 
-SDL_CFLAGS = $(shell sdl-config --cflags)
+#SDL_CFLAGS = $(shell sdl-config --cflags)
+SDL_CFLAGS = 
 
 # ---------------------------------------------------------------------------
 
@@ -44,7 +45,8 @@ build:
 	cd `dirname "$<"`; xxd -i `basename "$<"` > `basename "$<"`.h
 	
 
-source/display.o: source/display.c source/img/heli.png.h source/data/DejaVuSans-Bold.ttf.h
+source/display.o: source/display.c source/data/DejaVuSans-Bold.ttf.h
+source/sprite.o: source/img/heli.png.h 
 
 source/levels/lv0/lv0.o: source/levels/lv0/lv0.c source/levels/lv0/lv0.gif.h
 
