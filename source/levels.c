@@ -124,7 +124,7 @@ int start_level(LevelList *ll)
     return 1;
 }
 
-int
+bool
 load_callback(struct cfg_section *sect, const char *key, const char *value, void *ll_)
 {
     LevelList *ll = ll_;
@@ -148,16 +148,16 @@ load_callback(struct cfg_section *sect, const char *key, const char *value, void
 		    ok = load_pbm(value, ll->level);
 		} else {
 		    fprintf(stderr, "%s: error: unknown bit-map format.\n", value);
-		    return 0;
+		    return false;
 		}
 		if (!ok) {
 		    fprintf(stderr, "Error loading bit-map.\n");
-		    return 0;
+		    return false;
 		}
 	    } else if (strcasecmp(key, "background") == 0) {
 		if (!(bg_l = img_from_file(value))) {
 		    fprintf(stderr, "Error loading background: %s\n", IMG_GetError());
-		    return 0;
+		    return false;
 		}
 		ll->level->bg = SDL_DisplayFormat(bg_l);
 		SDL_FreeSurface(bg_l);
@@ -224,7 +224,7 @@ load_callback(struct cfg_section *sect, const char *key, const char *value, void
 	    break;;
     }
 
-    return 1;
+    return true;
 }
 
 void

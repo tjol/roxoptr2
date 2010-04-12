@@ -19,11 +19,13 @@
 #endif
 #include <errno.h>
 
-int init_fs();
+#include <stdbool.h>
 
-int load_gzpbm(const char *fname, Level *l);
-int load_zpbm(const char *fname, Level *l);
-int load_pbm(const char *fname, Level *l);
+bool init_fs();
+
+bool load_gzpbm(const char *fname, Level *l);
+bool load_zpbm(const char *fname, Level *l);
+bool load_pbm(const char *fname, Level *l);
 
 typedef size_t (*get_chunk_f)(unsigned char **, size_t *, void *);
 

@@ -98,7 +98,7 @@ void animate_sprite (struct sprite *s, SDL_Surface *canvas, SDL_Rect *position)
 static SDL_Surface **surfaces_ = NULL;
 static int n_surfaces_;
 
-static int
+static bool
 sprite_load_cb (struct cfg_section *sect,
 		const char *key, const char *val,
 		struct sprite *sp)
@@ -113,19 +113,19 @@ sprite_load_cb (struct cfg_section *sect,
 		n_surfaces_ = atoi(val);
 		if (n_surfaces_ == 0) {
 		    fprintf(stderr, "ERROR: No sprite image. \n");
-		    return 0;
+		    return false;
 		}
 		surfaces_ = malloc(n_surfaces_ * sizeof(SDL_Surface *));
 	    } else if (!surfaces_) {
 		fprintf(stderr, "ERROR: Number of sprite images must be specified first.\n");
-		return 0;
+		return false;
 	    } else if ((i = atoi(key)) >= n_surfaces_) {
 		fprintf(stderr, "ERROR: Index out of bounds: %d.\n", i);
-		return 0;
+		return false;
 	    } else {
 		if (!(surfaces_[i] = img_from_file(val))) {
 		    fprintf(stderr, "ERROR: Failed to load file %s.\n", val);
-		    return 0;
+		    return false;
 		}
 	    }
 	    break;;
@@ -135,20 +135,20 @@ sprite_load_cb (struct cfg_section *sect,
 		sp->n_frames = atoi(val);
 		if (sp->n_frames == 0) {
 		    fprintf(stderr, "ERROR: No frames. \n");
-		    return 0;
+		    return false;
 		}
 		sp->frames = malloc(sp->n_frames * sizeof(struct sprite_frame));
 	    } else if (!(sp->frames)) {
 		fprintf(stderr, "ERROR: Number of frames must be specified first.\n");
-		return 0;
+		return false;
 	    } else if ((i = atoi(key)) >= sp->n_frames) {
 		fprintf(stderr, "ERROR: Index out of bounds: %d.\n", i);
-		return 0;
+		return false;
 	    } else {
 		sscanf(val, "%d %d %d %d %d", &surface, &x, &y, &w, &h);
 		if (surface >= n_surfaces_) {
 		    fprintf(stderr, "ERROR: No such surface: %d.\n", surface);
-		    return 0;
+		    return false;
 		}
 		sp->frames[i].s = surfaces_[surface];
 		sp->frames[i].rect = malloc(sizeof(SDL_Rect));
@@ -172,10 +172,10 @@ sprite_load_cb (struct cfg_section *sect,
 		}
 	    } else if (!(sp->coll_checkpts)) {
 		fprintf(stderr, "ERROR: Number of checkpoints must be specified first.\n");
-		return 0;
+		return false;
 	    } else if ((i = atoi(key)) >= sp->n_coll_checkpts) {
 		fprintf(stderr, "ERROR: Index out of bounds: %d.\n", i);
-		return 0;
+		return false;
 	    } else {
 		sscanf(val, "%d %d", &x, &y);
 		sp->coll_checkpts[i].relx = x;
@@ -186,13 +186,13 @@ sprite_load_cb (struct cfg_section *sect,
 	case 4: /* animation */
 	    if (strcasecmp(key, "frame ms") != 0) {
 		fprintf(stderr, "ERROR: Unknown setting: %s\n", key); 
-		return 0;
+		return false;
 	    }
 	    sp->frame_len = atol(val);
 	    break;;
     }
 
-    return 1;
+    return true;
 }
 
 
@@ -225,7 +225,6 @@ load_sprite_from_cfgfile(const char *fname)
 	*cp0 = '\0';
     old_pwd = get_pwd();
     chdir(file_name);
-    free(file_name);
     *cp0 = '/';
 
     sp = calloc(1, sizeof(struct sprite));

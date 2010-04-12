@@ -10,9 +10,12 @@
 #ifndef R_CFGPARSER_H_
 #define R_CFGPARSER_H_
 
+#include <stdbool.h>
+
 #include <stdio.h>
 
 #include <string.h>
+#include <strings.h>
 #ifdef _WINDOWS
 #  define strcasecmp(A,B) _stricmp((A),(B))
 #endif
@@ -22,9 +25,9 @@ struct cfg_section {
     char *name;
 };
 
-typedef int (*cfg_callback_f)(struct cfg_section *, const char *, const char *, void *);
+typedef bool (*cfg_callback_f)(struct cfg_section *, const char *, const char *, void *);
 
-int read_cfg_file(FILE *f, struct cfg_section *sections, cfg_callback_f cb, void *cb_arg);
+bool read_cfg_file(FILE *f, struct cfg_section *sections, cfg_callback_f cb, void *cb_arg);
 
 #endif
 

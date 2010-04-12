@@ -19,54 +19,54 @@
 #define R_CHUNK 512
 
 
-static int load_pbm_from(get_chunk_f get_more, void *arg, Level *l);
+static bool load_pbm_from(get_chunk_f get_more, void *arg, Level *l);
 
 
-int init_fs()
+bool init_fs()
 {
 #ifdef WII
-    static int fs_initialized = 0;
+    static bool fs_initialized = false;
 
     if (!fs_initialized) {
 	if (!fatInitDefault()) {
-	    return 0;
+	    return false;
 	}
 	if (chdir("/roxoptr2") != 0) { /* this replaces the normal CWD */
 	    chdir("/");
 	}
-	fs_initialized = 1;
+	fs_initialized = true;
     }
 #endif
-    return 1;
+    return true;
 }
 
-int
+bool
 load_gzpbm(const char *fname, Level *l)
 {
     gzFile pf;
 
     if (!(pf = gzopen(fname, "r"))) {
 	fprintf(stderr, "Error opening gz file.\n");
-	return 0;
+	return false;
     }
 
     return load_pbm_from((get_chunk_f)&gz_getchunk, pf, l);
 }
 
-int
+bool
 load_pbm(const char *fname, Level *l)
 {
     FILE *pf;
 
     if (!(pf = fopen(fname, "r"))) {
 	perror(0);
-	return 0;
+	return false;
     }
 
     return load_pbm_from((get_chunk_f)&f_getchunk, pf, l);
 }
 
-static int
+static bool
 load_pbm_from(get_chunk_f get_more, void *arg, Level *l)
 {
     unsigned char *buf;
@@ -98,7 +98,7 @@ load_pbm_from(get_chunk_f get_more, void *arg, Level *l)
 	is_ascii = 0;
     } else {
 	fprintf(stderr, "Error: This is not a PBM file.\n");
-	return 0;
+	return false;
     }
 
     buf += 2;
@@ -174,7 +174,7 @@ load_pbm_from(get_chunk_f get_more, void *arg, Level *l)
     }
 
     l->bits = bits;
-    return 1;
+    return true;
 }
 
 size_t

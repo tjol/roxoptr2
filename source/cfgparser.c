@@ -14,7 +14,7 @@
 
 #define LINE_LENGTH 256
 
-int read_cfg_file (FILE *f, struct cfg_section *sections,
+bool read_cfg_file (FILE *f, struct cfg_section *sections,
 		    cfg_callback_f cb, void *cb_arg)
 {
     char line[LINE_LENGTH];
@@ -85,10 +85,10 @@ int read_cfg_file (FILE *f, struct cfg_section *sections,
 		    buf2[0] = '\0';
 		}
 		if (!((*cb)(s, buf1, buf2, cb_arg))) {
-		    return 0;
+		    return false;
 		}
 	}
     }
-    return 1;
+    return true;
 }
 
