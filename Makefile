@@ -2,7 +2,7 @@ CC	= $(PREFIX)gcc
 LD	= $(CC)
 
 CFLAGS	 = -g -O2 -Wall $(STD_FLAGS) $(MACHDEP) $(INCLUDE) $(MACROS) $(SDL_CFLAGS)
-STD_FLAGS = -std=c99 -pedantic -D_XOPEN_SOURCE=500
+STD_FLAGS = -std=c99 -pedantic -D_BSD_SOURCE=1
 LDFLAGS  = -g $(MACHDEP)
 LIBS	 = -lSDL -lSDL_image -lSDL_ttf -lm
 
