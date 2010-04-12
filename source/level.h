@@ -10,6 +10,7 @@
 #ifndef R_LEVEL_H_
 #define R_LEVEL_H_
 
+#include "sprite.h"
 #include <SDL/SDL.h>
 
 typedef unsigned char directional_t;
@@ -45,6 +46,8 @@ struct level_ { /* Level */
     unsigned int heli_y0;
     
     directional_t controls;
+
+    struct sprite *main_sprite;
     
     void (*del)(Level *);
 };

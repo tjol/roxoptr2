@@ -38,7 +38,9 @@ void animate_sprite(struct sprite *s, SDL_Surface *canvas, SDL_Rect *position);
 
 struct sprite *load_sprite_from_cfgfile(const char *fname);
 
-extern struct sprite *main_sprite;
+struct sprite *find_sprite(const char *name);
+
+extern struct sprite *classic_heli_sprite;
 
 #endif
 

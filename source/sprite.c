@@ -21,7 +21,7 @@
 #include "cfgparser.h"
 #include "filesys.h"
 
-struct sprite *main_sprite;
+struct sprite *classic_heli_sprite;
 
 struct sprite_point std_heli_sprite_coll_checkpts[] = 
     {
@@ -231,11 +231,56 @@ load_sprite_from_cfgfile(const char *fname)
 
     surfaces_ = NULL;
     n_surfaces_ = 0;
-    read_cfg_file(fp, sections, (cfg_callback_f)&sprite_load_cb, sp);
+    if (!read_cfg_file(fp, sections, (cfg_callback_f)&sprite_load_cb, sp)) {
+	free(sp);
+	sp = NULL;
+	/* return NULL below */
+    }
 
     chdir(old_pwd);
     fclose(fp);
 
     return sp;
+}
+
+static struct sprite *
+find_sprite_(const char *name, bool athome)
+{
+    /* easiest case: it's a valid file path. */
+    if (access(name, R_OK) == 0) return load_sprite_from_cfgfile(name);
+
+    int len = strlen(name);
+    char *str;
+    struct sprite *ret;
+
+    /* .cfg missing? */
+    str = malloc(len+5);
+    strcpy(str, name);
+    strcpy(str+len, ".cfg");
+    if (access(str, R_OK) == 0) {
+	ret = load_sprite_from_cfgfile(str);
+	free(str);
+	return ret;
+    }
+    free(str);
+
+    /* try from the standard place: ${inst}/sprites */
+    if (!athome) {
+	str = malloc(8+len+1);
+	strcpy(str, "sprites/");
+	strcpy(str+8, name);
+	ret = find_sprite_(path_from_home(str), true);
+	free(str);
+	return ret;
+    }
+
+    /* can't find it. */
+    return NULL;
+}
+
+struct sprite *
+find_sprite(const char *name)
+{
+    return find_sprite_(name, false);
 }
 

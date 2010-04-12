@@ -21,6 +21,7 @@
 
 static bool load_pbm_from(get_chunk_f get_more, void *arg, Level *l);
 
+static char *game_inst_path;
 
 bool init_fs()
 {
@@ -37,8 +38,44 @@ bool init_fs()
 	fs_initialized = true;
     }
 #endif
+    game_inst_path = get_pwd();
     return true;
 }
+
+char *get_pwd_w_extra(size_t alloc_extra)
+{
+    char *cwd;
+    size_t len = 256;
+
+    cwd = malloc(256);
+    while (!getcwd(cwd, len-alloc_extra)) {
+	if (errno == ERANGE) {
+	    len += 256;
+	    cwd = realloc(cwd, len);
+	} else {
+	    free(cwd);
+	    return NULL;
+	}
+    }
+
+    return cwd;
+}
+
+void chdir_home()
+{
+    (void)chdir(game_inst_path);
+}
+
+char *path_from_home(const char *relp)
+{
+    char *ret = malloc(strlen(game_inst_path) + strlen(relp) + 2);
+    char *cpi, *cpo;
+    for (cpi = game_inst_path, cpo = ret; *cpi; *(cpo++) = *(cpi++));
+    *(cpo++) = '/';
+    strcpy(cpo, relp);
+    return ret;
+}
+
 
 bool
 load_gzpbm(const char *fname, Level *l)

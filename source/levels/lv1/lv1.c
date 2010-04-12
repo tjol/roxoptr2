@@ -70,6 +70,7 @@ Level *load_lv1()
     level->heli_y0 = lv1_y0;
     level->controls = lv1_controls;
     level->del = del_lv1;
+    level->main_sprite = NULL;
         
     return level;
 }

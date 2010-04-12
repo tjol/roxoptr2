@@ -21,12 +21,12 @@ TTF_Font *huge_font = NULL;
 
 static void quit()
 {
-    if (main_sprite) {
-	if (main_sprite->free_data) {
-	    main_sprite->free_data(main_sprite);
+    if (classic_heli_sprite) {
+	if (classic_heli_sprite->free_data) {
+	    classic_heli_sprite->free_data(classic_heli_sprite);
 	}
-	free(main_sprite);
-	main_sprite = NULL;
+	free(classic_heli_sprite);
+	classic_heli_sprite = NULL;
     }
     if(menu_font) {
 	TTF_CloseFont(menu_font);
@@ -124,8 +124,9 @@ void init_SDL()
 	exit(1);
     }
 
-    main_sprite = load_sprite_from_cfgfile("sprites/ufo.cfg");
-    //main_sprite = load_heli();
+    classic_heli_sprite = load_heli();
+    /*  this is the responsability of start_level().
+    thegame.main_sprite = classic_heli_sprite; */
 }
 
 void paint_game()
@@ -143,7 +144,7 @@ void paint_game()
     
     SDL_BlitSurface(thegame.current_level->bg, &bg_rect, screen, NULL);
 
-    animate_sprite(main_sprite, screen, &heli_dest);
+    animate_sprite(thegame.main_sprite, screen, &heli_dest);
 
     SDL_Flip(screen);
 }

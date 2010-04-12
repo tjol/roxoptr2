@@ -48,6 +48,7 @@ static Level *load_()
     level->heli_y0 = Y0;
     level->controls = CONTROLS;
     level->del = del_;
+    level->main_sprite = NULL;
         
     return level;
 }

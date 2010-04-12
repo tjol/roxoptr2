@@ -35,26 +35,12 @@ size_t zlib_getchunk (unsigned char **pbuf, size_t *plen, void *arg);
 void *init_zlib_getchunk(const char *fname);
 void finalize_zlib_getchunk(void *arg);
 
-static inline char *get_pwd_w_extra(size_t alloc_extra)
-{
-    char *cwd;
-    size_t len = 256;
-
-    cwd = malloc(256);
-    while (!getcwd(cwd, len-alloc_extra)) {
-	if (errno == ERANGE) {
-	    len += 256;
-	    cwd = realloc(cwd, len);
-	} else {
-	    free(cwd);
-	    return NULL;
-	}
-    }
-
-    return cwd;
-}
+char *get_pwd_w_extra(size_t alloc_extra);
 
 #define get_pwd() get_pwd_w_extra(0)
+
+void chdir_home();
+char *path_from_home(const char *relp);
 
 #endif
 

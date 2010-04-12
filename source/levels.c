@@ -85,6 +85,7 @@ void init_levels()
 	}
     }
     free(cwda);
+    chdir_home();
 
     current_level = levels = lv0;
     
@@ -118,6 +119,11 @@ int start_level(LevelList *ll)
     thegame.current_level = ll->level;
     thegame.heli_xpos = thegame.current_level->heli_x0;
     thegame.heli_ypos = thegame.current_level->heli_y0;
+    if (ll->level->main_sprite) {
+	thegame.main_sprite = ll->level->main_sprite;
+    } else {
+	thegame.main_sprite = classic_heli_sprite;
+    }
    
     current_level = ll;
     
@@ -177,6 +183,11 @@ load_callback(struct cfg_section *sect, const char *key, const char *value, void
 		sscanf(value, "%lf %lf", &xd, &yd);
 		ll->level->Dvx = xd;
 		ll->level->Dvy = yd;
+	    } else if (strcasecmp(key, "sprite") == 0) {
+		if (!(ll->level->main_sprite = find_sprite(value))) {
+		    fprintf(stderr, "Error loading sprite\n");
+		    return false;
+		}
 	    }
 	    break;;
 	case 2: /* [viewport] */
@@ -274,6 +285,7 @@ load_level_from_cfg(char *filename, LevelList *prev)
     l->visible_r = l->visible_l = l->visible_t = l->visible_b = 0.2;
     l->controls = 0;
     l->del = &_del_level;
+    l->main_sprite = NULL; 
 
     if (!read_cfg_file(f_cfg, sections, &load_callback, ll)) {
 	free(ll->level);

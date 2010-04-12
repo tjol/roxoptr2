@@ -49,9 +49,9 @@ void game_tic()
     /**** check for collisions *************************/
     
     collision = 0;
-    for (i=0; i < main_sprite->n_coll_checkpts; ++i) {
-	collision |= GET_BIT(lv, thegame.heli_xpos + main_sprite->coll_checkpts[i].relx,
-				 thegame.heli_ypos + main_sprite->coll_checkpts[i].rely);
+    for (i=0; i < thegame.main_sprite->n_coll_checkpts; ++i) {
+	collision |= GET_BIT(lv, thegame.heli_xpos + thegame.main_sprite->coll_checkpts[i].relx,
+				 thegame.heli_ypos + thegame.main_sprite->coll_checkpts[i].rely);
     }
 
     if (collision) {
