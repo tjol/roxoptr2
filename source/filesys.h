@@ -42,6 +42,10 @@ char *get_pwd_w_extra(size_t alloc_extra);
 void chdir_home();
 char *path_from_home(const char *relp);
 
+#ifdef WII
+int access(const char *pathname, int mode);
+#endif
+
 #endif
 
 

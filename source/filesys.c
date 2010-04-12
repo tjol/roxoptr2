@@ -331,3 +331,21 @@ finalize_zlib_getchunk(void *arg)
     zlib_getchunk(NULL, &cmd, arg);
 }
 
+
+#ifdef WII
+int access(const char *pathname, int mode)
+{
+    FILE *fp;
+    int ret;
+    fp = fopen(pathname, "rb");
+    if (fp == NULL) {
+	ret = -1;
+    } else {
+	ret = 0;
+	fclose(fp);
+    }
+    return ret;
+    
+}
+#endif
+
