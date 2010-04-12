@@ -17,10 +17,15 @@ struct sprite_point {
     int rely;
 };
 
+struct sprite_frame {
+    SDL_Surface *s;
+    SDL_Rect *rect;
+};
+
 struct sprite {
-    SDL_Surface **frames;
+    struct sprite_frame *frames;
     int n_frames;
-    time_t frame_len;
+    Uint32 frame_len;
 
     struct sprite_point *coll_checkpts;
     int n_coll_checkpts;
@@ -29,6 +34,9 @@ struct sprite {
 };
 
 struct sprite *load_heli(void);
+void animate_sprite(struct sprite *s, SDL_Surface *canvas, SDL_Rect *position);
+
+struct sprite *load_sprite_from_cfgfile(const char *fname);
 
 extern struct sprite *main_sprite;
 

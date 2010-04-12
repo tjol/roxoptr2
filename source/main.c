@@ -10,15 +10,15 @@
 #include "main.h"
 
 gamestate_t thegame;
-time_t iter_ticks = ITER_MIN_TICKS;
+Uint32 iter_ticks = ITER_MIN_TICKS;
 
-static time_t sleep_until_ = 0;
+static Uint32 sleep_until_ = 0;
 
 void poll_events();
 
 int main (int argc, char **argv)
 {
-    time_t iter_start, delta; /* times */
+    Uint32 iter_start, delta; /* times */
     
     init_menu();
     init_SDL();
@@ -120,7 +120,7 @@ void poll_events()
 # endif
 }
 
-void sleep_for(time_t ms)
+void sleep_for(Uint32 ms)
 {
     sleep_until_ = SDL_GetTicks() + ms;
 }

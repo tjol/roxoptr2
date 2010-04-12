@@ -21,9 +21,9 @@ struct cfg_section {
     char *name;
 };
 
-void read_cfg_file(FILE *f, struct cfg_section *sections, 
-                   void (*cb)(struct cfg_section *, const char *, const char *, void *),
-                   void *cb_arg);
+typedef int (*cfg_callback_f)(struct cfg_section *, const char *, const char *, void *);
+
+int read_cfg_file(FILE *f, struct cfg_section *sections, cfg_callback_f cb, void *cb_arg);
 
 #endif
 

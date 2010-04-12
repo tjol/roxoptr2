@@ -49,9 +49,7 @@ struct level_ { /* Level */
     void (*del)(Level *);
 };
 
-/*
-
-inline int get_bit(Level *lv, int x, int y) 
+static inline int get_bit(Level *lv, int x, int y) 
 {
     unsigned int byte_w = (lv->w / 8) + ((lv->w % 8) == 0 ? 0 : 1);
     unsigned int idx = (byte_w * y) + (x / 8);
@@ -59,10 +57,10 @@ inline int get_bit(Level *lv, int x, int y)
     
     return (lv->bits[idx] >> bit) & 1;
 }
-
-*/
-
+/*
 #define GET_BIT(L,X,Y) (((L)->bits[(((L)->w/8)+(((L)->w%8)==0?0:1))*(Y)+(X)/8] >> ((X)%8)) & 1)
+*/
+#define GET_BIT(L,X,Y) (get_bit(L,X,Y))
 
 typedef struct levellist_ LevelList;
 

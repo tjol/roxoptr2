@@ -29,7 +29,7 @@
 #include "menu.h"
 
 #define ITER_MIN_TICKS 15
-extern time_t iter_ticks;
+extern Uint32 iter_ticks;
 
 typedef struct {
     Level *current_level;
@@ -46,7 +46,7 @@ typedef struct {
 
 extern gamestate_t thegame;
 
-void sleep_for(time_t);
+void sleep_for(Uint32 tics);
 
 #endif
 

@@ -14,15 +14,8 @@
 #include <sys/types.h>
 
 #include "cfgparser.h"
-#ifdef _WINDOWS
-#  include <direct.h>
-#  define PATH_MAX 1024
-#else
-#  include <unistd.h>
-#endif
 #include <stdio.h>
 #include <limits.h>
-#include <errno.h>
 #include <string.h>
 
 #include <SDL/SDL_image.h>
@@ -62,23 +55,8 @@ void init_levels()
     
     init_fs();
 
-    cwda = malloc(512);
-    if(!getcwd(cwda, 246)) { /* leave room for /leveldata/[etc etc] */
-	if (errno == ERANGE) {
-	    /* allocate longer buffer.
-	     * on linux, this is 4K.  */
-	    free(cwda);
-	    cwda = malloc(PATH_MAX);
-	    if(!getcwd(cwda, PATH_MAX-10)) {
-		fprintf(stderr, "Unable to get CWD.\n");
-		exit(1);
-	    }
-	}
-	if(!getcwd(cwda, PATH_MAX-10)) {
-		fprintf(stderr, "Unable to get CWD.\n");
-		exit(1);
-	}
-    }
+    cwda = get_pwd_w_extra(10);
+
     strcat(cwda, "/leveldata/");
     for(cwd_end = cwda; *cwd_end; ++cwd_end);
 
@@ -146,7 +124,7 @@ int start_level(LevelList *ll)
     return 1;
 }
 
-void
+int
 load_callback(struct cfg_section *sect, const char *key, const char *value, void *ll_)
 {
     LevelList *ll = ll_;
@@ -156,8 +134,6 @@ load_callback(struct cfg_section *sect, const char *key, const char *value, void
     unsigned int xu, yu;
     double visible;
     int ok;
-    FILE *fp;
-    SDL_RWops *rw;
 
     switch (sect->id) {
 	case 1: /* [level] */
@@ -172,30 +148,16 @@ load_callback(struct cfg_section *sect, const char *key, const char *value, void
 		    ok = load_pbm(value, ll->level);
 		} else {
 		    fprintf(stderr, "%s: error: unknown bit-map format.\n", value);
-		    exit(1);
+		    return 0;
 		}
 		if (!ok) {
 		    fprintf(stderr, "Error loading bit-map.\n");
-		    exit(1);
+		    return 0;
 		}
 	    } else if (strcasecmp(key, "background") == 0) {
-		/* IMG_Load doesn't exist on the Wii.
-		 * the second approach causes problems on Windows, for
-		 * some reason, but works file on UNIX */
-#	      ifndef WII
-		bg_l = IMG_Load(value);
-#	      else
-		fp = fopen(value, "rb");
-		if (!fp) {
-		    perror(0);
-		    exit(1);
-		}
-		rw = SDL_RWFromFP(fp, 1);
-		bg_l = IMG_Load_RW(rw, 0);
-#	      endif
-		if (!bg_l) {
+		if (!(bg_l = img_from_file(value))) {
 		    fprintf(stderr, "Error loading background: %s\n", IMG_GetError());
-		    exit(1);
+		    return 0;
 		}
 		ll->level->bg = SDL_DisplayFormat(bg_l);
 		SDL_FreeSurface(bg_l);
@@ -261,6 +223,8 @@ load_callback(struct cfg_section *sect, const char *key, const char *value, void
 
 	    break;;
     }
+
+    return 1;
 }
 
 void
@@ -311,7 +275,11 @@ load_level_from_cfg(char *filename, LevelList *prev)
     l->controls = 0;
     l->del = &_del_level;
 
-    read_cfg_file(f_cfg, sections, &load_callback, ll);
+    if (!read_cfg_file(f_cfg, sections, &load_callback, ll)) {
+	free(ll->level);
+	free(ll);
+	ll = NULL;
+    }
 
     fclose(f_cfg);
 

@@ -22,7 +22,9 @@ TTF_Font *huge_font = NULL;
 static void quit()
 {
     if (main_sprite) {
-	main_sprite->free_data(main_sprite);
+	if (main_sprite->free_data) {
+	    main_sprite->free_data(main_sprite);
+	}
 	free(main_sprite);
 	main_sprite = NULL;
     }
@@ -126,7 +128,8 @@ void init_SDL()
 	exit(1);
     }
 
-    main_sprite = load_heli();
+    main_sprite = load_sprite_from_cfgfile("sprites/ufo.cfg");
+    //main_sprite = load_heli();
 }
 
 void paint_game()
@@ -141,12 +144,11 @@ void paint_game()
     
     heli_dest.x = thegame.heli_xpos - thegame.xpos;
     heli_dest.y = thegame.heli_ypos - thegame.ypos;
-    /*heli_dest.w = HELI_W;
-    heli_dest.h = HELI_H;*/
     
     SDL_BlitSurface(thegame.current_level->bg, &bg_rect, screen, NULL);
-    SDL_BlitSurface(main_sprite->frames[0], NULL, screen, &heli_dest);
-    
+
+    animate_sprite(main_sprite, screen, &heli_dest);
+
     SDL_Flip(screen);
 }
 
