@@ -225,7 +225,6 @@ load_sprite_from_cfgfile(const char *fname)
 	*cp0 = '\0';
     old_pwd = get_pwd();
     chdir(file_name);
-    free(file_name);
     *cp0 = '/';
 
     sp = calloc(1, sizeof(struct sprite));
