@@ -13,7 +13,6 @@
 #include <stdio.h>
 
 #include <string.h>
-#include <strings.h>
 #ifdef _WINDOWS
 #  define strcasecmp(A,B) _stricmp((A),(B))
 #endif

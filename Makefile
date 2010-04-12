@@ -1,7 +1,8 @@
 CC	= $(PREFIX)gcc
 LD	= $(CC)
 
-CFLAGS	 = -g -Wall -std=c99 -pedantic -D_XOPEN_SOURCE=500 $(MACHDEP) $(INCLUDE) $(MACROS) $(SDL_CFLAGS)
+CFLAGS	 = -g -O2 -Wall $(STD_FLAGS) $(MACHDEP) $(INCLUDE) $(MACROS) $(SDL_CFLAGS)
+STD_FLAGS = -std=c99 -pedantic -D_XOPEN_SOURCE=500
 LDFLAGS  = -g $(MACHDEP)
 LIBS	 = -lSDL -lSDL_image -lSDL_ttf -lm
 
@@ -28,6 +29,7 @@ ifeq ($(system),wii)
 		   -lSDL -lSDL_image -lSDL_ttf \
 		   -lpng -ljpeg -lfreetype \
 		   -lz -lfat -lwiiuse -lbte -logc -lm -lwiikeyboard
+    STD_FLAGS := -std=gnu99
     INCLUDE  := -I$(PORTLIBS)/include -I$(DEVKITPRO)/libogc/include
     SDL_CFLAGS = 
     MACROS = -DWII

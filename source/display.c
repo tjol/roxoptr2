@@ -60,14 +60,6 @@ SDL_Surface *img_from_mem(void *mem, int size, int alpha)
 
 void init_SDL()
 {
-    gzFile icon_file;
-    unsigned char *icon_buf;
-    unsigned int bufsize = 4096;
-    unsigned int len = 0;
-    unsigned int d;
-    SDL_Surface *icon;
-    SDL_RWops *icon_rw;
-
     if (SDL_Init(SDL_INIT_VIDEO) != 0) {
 	fprintf(stderr, "Unable to initialize SDL: %s\n", SDL_GetError());
 	exit(1);
@@ -104,8 +96,12 @@ void init_SDL()
 # ifndef WII
     SDL_WM_SetCaption("roxoptr2", "roxoptr2");
 
-    icon_buf = malloc(bufsize);
-    icon_file = gzopen("icon.bmp.gz", "rb");
+    unsigned int bufsize = 4096;
+    unsigned char *icon_buf = malloc(bufsize);
+    gzFile icon_file = gzopen("icon.bmp.gz", "rb");
+    unsigned int len = 0;
+    unsigned int d;
+
     while (d = gzread(icon_file, icon_buf+len, bufsize-len)) {
 	len += d;
 	if (len == bufsize) {
@@ -113,8 +109,8 @@ void init_SDL()
 	    icon_buf = realloc(icon_buf, bufsize);
 	}
     }
-    icon_rw = SDL_RWFromMem(icon_buf, len);
-    icon = SDL_LoadBMP_RW(icon_rw, 0);
+    SDL_RWops *icon_rw = SDL_RWFromMem(icon_buf, len);
+    SDL_Surface *icon = SDL_LoadBMP_RW(icon_rw, 0);
     SDL_FreeRW(icon_rw);
     gzclose(icon_file);
     free(icon_buf);
