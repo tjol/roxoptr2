@@ -62,7 +62,7 @@ void init_levels()
 
     fp_levels_list = fopen("leveldata/levels.list", "r");
     if (!fp_levels_list) {
-	perror(0);
+	perror("leveldata/levels.list");
     } else {
 	while (line = fgets(lbuf, 256, fp_levels_list)) {
 	    /* strip spaces */
