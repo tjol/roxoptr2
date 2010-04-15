@@ -15,9 +15,6 @@
 #include <stdio.h>
 
 #include <string.h>
-#ifdef _WINDOWS
-#  define strcasecmp(A,B) _stricmp((A),(B))
-#endif
 
 struct cfg_section {
     int id;

@@ -12,11 +12,7 @@
 
 #include "level.h"
 #include <zlib.h>
-#ifdef _WINDOWS
-#  include <direct.h>
-#else
-#  include <unistd.h>
-#endif
+#include <unistd.h>
 #include <errno.h>
 
 #include <stdbool.h>
