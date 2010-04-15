@@ -34,11 +34,11 @@ extern Uint32 iter_ticks;
 typedef struct {
     Level *current_level;
     
-    unsigned int xpos;
-    unsigned int ypos;
+    int xpos;
+    int ypos;
     
-    unsigned int heli_xpos;
-    unsigned int heli_ypos;
+    int heli_xpos;
+    int heli_ypos;
     
     int running;
     int in_menu;

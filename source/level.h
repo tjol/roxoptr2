@@ -52,13 +52,15 @@ struct level_ { /* Level */
     void (*del)(Level *);
 };
 
-static inline int get_bit(Level *lv, int x, int y) 
+static inline int
+get_bit(Level *lv, unsigned int x, unsigned int y) 
 {
     unsigned int byte_w = (lv->w / 8) + ((lv->w % 8) == 0 ? 0 : 1);
     unsigned int idx = (byte_w * y) + (x / 8);
     unsigned int bit = x % 8;
     
-    return (lv->bits[idx] >> bit) & 1;
+    /* negative x, y will overflow and therefore return -1; */
+    return (x < lv->w && y < lv->h) ? (lv->bits[idx] >> bit) & 1 : -1;
 }
 /*
 #define GET_BIT(L,X,Y) (((L)->bits[(((L)->w/8)+(((L)->w%8)==0?0:1))*(Y)+(X)/8] >> ((X)%8)) & 1)

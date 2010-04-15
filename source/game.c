@@ -43,8 +43,8 @@ void game_tic()
     xpos += vx * (double) iter_ticks / 1000.0;
     ypos += vy * (double) iter_ticks / 1000.0;
     
-    thegame.heli_xpos = (unsigned int) xpos;
-    thegame.heli_ypos = (unsigned int) ypos;
+    thegame.heli_xpos = (int) xpos;
+    thegame.heli_ypos = (int) ypos;
     
     /**** check for collisions *************************/
     
@@ -57,8 +57,8 @@ void game_tic()
     if (collision) {
 	thegame.running = 0;
 	paint_banner("You hit an obstacle", "FAIL", 255, 0, 0, 3000);
-    }
-    
+    }    
+
     /**** adjust visible area **************************/
     
     if (   (delta = SCREEN_W - thegame.heli_xpos + thegame.xpos
@@ -85,8 +85,8 @@ void game_tic()
     
     
     /**** reached finish line? *************************/
-    if (   thegame.heli_xpos >= lv->fin_x
-	|| thegame.heli_ypos >= lv->fin_y ) {
+    if (   thegame.heli_xpos >= (signed) lv->fin_x
+	|| thegame.heli_ypos >= (signed) lv->fin_y ) {
 	
 	paint_banner("You actually made it!", "WIN", 0, 255, 0, 5000);
 	
