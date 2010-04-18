@@ -61,6 +61,8 @@ Sprite *load_heli(void)
     h->frame_len = 60;
     h->coll_checkpts = std_heli_sprite_coll_checkpts;
     h->n_coll_checkpts = 13;
+    h->current_frame = 0;
+    h->switch_time = 0;
     /* h->free_data = &free_surfaces; */
     h->free_data = NULL;
 
