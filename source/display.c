@@ -137,6 +137,7 @@ void paint_game()
 {
     SDL_Rect bg_rect;
     SDL_Rect heli_dest;
+    Overlay *lov;
     
     bg_rect.x = thegame.xpos;
     bg_rect.y = thegame.ypos;
@@ -147,6 +148,10 @@ void paint_game()
     heli_dest.y = thegame.heli_ypos - thegame.ypos;
     
     SDL_BlitSurface(thegame.current_level->bg, &bg_rect, screen, NULL);
+
+    for (lov = thegame.current_level->overlays; lov; lov = lov->next) {
+	lov->paint(thegame.current_level, lov, screen);
+    }
 
     animate_sprite(thegame.main_sprite, screen, &heli_dest);
 

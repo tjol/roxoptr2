@@ -22,7 +22,7 @@ struct sprite_frame {
     SDL_Rect *rect;
 };
 
-struct sprite {
+typedef struct sprite {
     struct sprite_frame *frames;
     int n_frames;
     Uint32 frame_len;
@@ -31,16 +31,16 @@ struct sprite {
     int n_coll_checkpts;
 
     void (*free_data)(struct sprite*);
-};
+} Sprite;
 
-struct sprite *load_heli(void);
-void animate_sprite(struct sprite *s, SDL_Surface *canvas, SDL_Rect *position);
+Sprite *load_heli(void);
+void animate_sprite(Sprite *s, SDL_Surface *canvas, SDL_Rect *position);
 
-struct sprite *load_sprite_from_cfgfile(const char *fname);
+Sprite *load_sprite_from_cfgfile(const char *fname);
 
-struct sprite *find_sprite(const char *name);
+Sprite *find_sprite(const char *name);
 
-extern struct sprite *classic_heli_sprite;
+extern Sprite *classic_heli_sprite;
 
 #endif
 

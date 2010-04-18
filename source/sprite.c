@@ -17,7 +17,7 @@
 #include "cfgparser.h"
 #include "filesys.h"
 
-struct sprite *classic_heli_sprite;
+Sprite *classic_heli_sprite;
 
 struct sprite_point std_heli_sprite_coll_checkpts[] = 
     {
@@ -29,9 +29,9 @@ struct sprite_point std_heli_sprite_coll_checkpts[] =
 	{38, 24}
     };
 
-void free_surfaces (struct sprite *);
+void free_surfaces (Sprite *);
 
-struct sprite *load_heli(void)
+Sprite *load_heli(void)
 {
     struct sprite *h;
     SDL_Surface *heli_img;
@@ -58,7 +58,7 @@ struct sprite *load_heli(void)
     return h;
 }
 
-void free_surfaces(struct sprite *s)
+void free_surfaces(Sprite *s)
 {
     int i;
 
@@ -69,7 +69,7 @@ void free_surfaces(struct sprite *s)
     s->frames = NULL;
 }
 
-void animate_sprite (struct sprite *s, SDL_Surface *canvas, SDL_Rect *position)
+void animate_sprite (Sprite *s, SDL_Surface *canvas, SDL_Rect *position)
 {
     static Uint32 switch_time = 0;
     static int current_frame = 0;
@@ -97,7 +97,7 @@ static int n_surfaces_;
 static bool
 sprite_load_cb (struct cfg_section *sect,
 		const char *key, const char *val,
-		struct sprite *sp)
+		Sprite *sp)
 {
     int i;
     int surface;
@@ -192,7 +192,7 @@ sprite_load_cb (struct cfg_section *sect,
 }
 
 
-struct sprite *
+Sprite *
 load_sprite_from_cfgfile(const char *fname)
 {
     static struct cfg_section sections[] = {
@@ -207,7 +207,7 @@ load_sprite_from_cfgfile(const char *fname)
     char *file_name;
     char *cp, *cp0 = NULL;
     char *old_pwd;
-    struct sprite *sp;
+    Sprite *sp;
 
     if (!(fp = fopen(fname, "r"))) {
 	perror(0);
@@ -239,7 +239,7 @@ load_sprite_from_cfgfile(const char *fname)
     return sp;
 }
 
-static struct sprite *
+static Sprite *
 find_sprite_(const char *name, bool athome)
 {
     /* easiest case: it's a valid file path. */
@@ -274,7 +274,7 @@ find_sprite_(const char *name, bool athome)
     return NULL;
 }
 
-struct sprite *
+Sprite *
 find_sprite(const char *name)
 {
     return find_sprite_(name, false);

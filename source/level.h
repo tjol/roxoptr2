@@ -21,6 +21,9 @@ typedef unsigned char directional_t;
 
 typedef struct level_ Level;
 
+/* include at this point since overlays.h uses type Level */
+#include "overlays.h"
+
 struct level_ { /* Level */
     unsigned int w;	/* width */
     unsigned int h;	/* height */
@@ -47,9 +50,13 @@ struct level_ { /* Level */
     
     directional_t controls;
 
-    struct sprite *main_sprite;
+    Sprite *main_sprite;
+    Overlay *overlays;
     
     void (*del)(Level *);
+
+    /* usable by custom levels */
+    void *internal;
 };
 
 static inline int
@@ -62,9 +69,7 @@ get_bit(Level *lv, unsigned int x, unsigned int y)
     /* negative x, y will overflow and therefore return -1; */
     return (x < lv->w && y < lv->h) ? (lv->bits[idx] >> bit) & 1 : -1;
 }
-/*
-#define GET_BIT(L,X,Y) (((L)->bits[(((L)->w/8)+(((L)->w%8)==0?0:1))*(Y)+(X)/8] >> ((X)%8)) & 1)
-*/
+
 #define GET_BIT(L,X,Y) (get_bit(L,X,Y))
 
 typedef struct levellist_ LevelList;

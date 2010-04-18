@@ -10,6 +10,7 @@
 #include "level.h"
 #include "main.h"
 #include "filesys.h"
+#include "overlays.h"
 
 #include <sys/types.h>
 
@@ -141,6 +142,12 @@ load_callback(struct cfg_section *sect, const char *key, const char *value, void
     double visible;
     int ok;
 
+    struct ov_info {
+	struct overlay_type *t;
+	struct level_overlay *o; } *ov_infop;
+
+    struct level_overlay *lop;
+
     switch (sect->id) {
 	case 1: /* [level] */
 	    if (strcasecmp(key, "name") == 0) {
@@ -233,6 +240,29 @@ load_callback(struct cfg_section *sect, const char *key, const char *value, void
 	    }
 
 	    break;;
+
+	case 4: /* overlay */
+	    ov_infop = ll->level->internal;
+	    if (strcasecmp(key, "type") == 0) {
+		if (ll->level->overlays == NULL) {
+		    ov_infop = malloc(sizeof(struct ov_info));
+		}
+		if (!(ov_infop->t = get_overlay_type(value))) {
+		    fprintf(stderr, "Unknown overlay type: %s\n", value);
+		    return false;
+		}
+		lop = ov_infop->t->alloc(ov_infop->t);
+		if (ll->level->overlays == NULL) {
+		    ll->level->overlays = lop;
+		} else {
+		    ov_infop->o->next = lop;
+		}
+		ov_infop->o = lop;
+		ll->level->internal = ov_infop;
+	    } else {
+		ov_infop->t->construct(ov_infop->o, key, value);
+	    }
+	    break;;
     }
 
     return true;
@@ -260,6 +290,7 @@ load_level_from_cfg(char *filename, LevelList *prev)
 	{ 1, "level" },
 	{ 2, "viewport" },
 	{ 3, "controls" },
+	{ 4, "overlay" },
 	{ 0, NULL } /* sentinel */
     };
 
@@ -286,6 +317,7 @@ load_level_from_cfg(char *filename, LevelList *prev)
     l->controls = 0;
     l->del = &_del_level;
     l->main_sprite = NULL; 
+    l->overlays = NULL;
 
     if (!read_cfg_file(f_cfg, sections, &load_callback, ll)) {
 	free(ll->level);

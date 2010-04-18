@@ -43,7 +43,7 @@ typedef struct {
     int running;
     int in_menu;
 
-    struct sprite *main_sprite;
+    Sprite *main_sprite;
 } gamestate_t;
 
 extern gamestate_t thegame;
