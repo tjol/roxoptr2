@@ -24,8 +24,8 @@ int main (int argc, char **argv)
     init_SDL();
     init_levels();
     
-    thegame.running = 1;
-    thegame.in_menu = 1;
+    thegame.running = true;
+    thegame.in_menu = true;
     
     while (thegame.running) {
 	iter_start = SDL_GetTicks();
@@ -40,8 +40,8 @@ int main (int argc, char **argv)
 		    paint_game();
 		} else if (!thegame.running) {
 		    /* level code cannot quit! */
-		    thegame.running = 1;
-		    thegame.in_menu = 1;
+		    thegame.running = true;
+		    thegame.in_menu = true;
 		}
 	    }
 	}
@@ -92,7 +92,7 @@ void poll_events()
 		};
 		break;;
 	    case SDL_QUIT:
-		thegame.running = 0;
+		thegame.running = false;
 		break;;
 	}
     }
@@ -112,7 +112,7 @@ void poll_events()
     if (held & WPAD_BUTTON_PLUS)	thegame.in_menu = 1;
     
     if (held & WPAD_BUTTON_HOME) {
-	thegame.running = 0;
+	thegame.running = false;
     }
 
     

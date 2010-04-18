@@ -40,8 +40,8 @@ typedef struct {
     int heli_xpos;
     int heli_ypos;
     
-    int running;
-    int in_menu;
+    bool running;
+    bool in_menu;
 
     Sprite *main_sprite;
 } gamestate_t;

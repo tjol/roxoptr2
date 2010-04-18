@@ -40,14 +40,14 @@ void menu_tic()
 static void startgame(void *x)
 {
     if (start_level(current_level)) {
-	thegame.running = 1;
-	thegame.in_menu = 0;
+	thegame.running = true;
+	thegame.in_menu = false;
     }
 }
 
 static void quitgame(void *x)
 {
-    thegame.running = 0;
+    thegame.running = false;
 }
 
 static void levelmenu(void *);
@@ -113,8 +113,8 @@ static void menu_start_level(void *ll_)
     ll = (LevelList *) ll_;
     
     if (start_level(ll)) {
-	thegame.running = 1;
-	thegame.in_menu = 0;
+	thegame.running = true;
+	thegame.in_menu = false;
     }
 }
 
