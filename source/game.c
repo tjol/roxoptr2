@@ -85,9 +85,10 @@ void game_tic()
     
     
     /**** reached finish line? *************************/
-    if (   thegame.heli_xpos >= (signed) lv->fin_x
-	|| thegame.heli_ypos >= (signed) lv->fin_y ) {
-	
+    if(( (lv->heli_x0 < (signed) lv->fin_x) ? (thegame.heli_xpos >= (signed) lv->fin_x)
+					    : (thegame.heli_xpos <= (signed) lv->fin_x) )
+    || ( (lv->heli_y0 < (signed) lv->fin_y) ? (thegame.heli_ypos >= (signed) lv->fin_y)
+					    : (thegame.heli_ypos <= (signed) lv->fin_y) )) {
 	paint_banner("You actually made it!", "WIN", 0, 255, 0, 5000);
 	
 	thegame.running = start_level(current_level->next);
