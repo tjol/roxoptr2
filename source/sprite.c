@@ -21,12 +21,19 @@ Sprite *classic_heli_sprite;
 
 struct sprite_point std_heli_sprite_coll_checkpts[] = 
     {
-	{0, 0},
-	{38, 0},
-	{0, 12},
-	{16, 13},
-	{16, 24},
-	{38, 24}
+	{12, 0},
+	{33, 0},
+	{9, 4},
+	{36, 4},
+	{2, 6},
+	{0, 10},
+	{2, 14},
+	{10, 14},
+	{15, 15},
+	{15, 24},
+	{38, 24},
+	{37, 18},
+	{35, 10}
     };
 
 void free_surfaces (Sprite *);
@@ -39,19 +46,21 @@ Sprite *load_heli(void)
     h = malloc(sizeof(struct sprite));
 
     heli_img = img_from_mem(heli_png, heli_png_len, 1);
-    h->frames = malloc(sizeof(struct sprite_frame));
+    h->frames = malloc(4 * sizeof(struct sprite_frame));
 
-    h->frames[0].s = heli_img;
-    h->frames[0].rect = malloc(sizeof(SDL_Rect));
-    h->frames[0].rect->x = 0;
-    h->frames[0].rect->y = 0;
-    h->frames[0].rect->w = 38;
-    h->frames[0].rect->h = 24;
+    for (int i = 0; i < 4; ++i) {
+	h->frames[i].s = heli_img;
+	h->frames[i].rect = malloc(sizeof(SDL_Rect));
+	h->frames[i].rect->x = i * 38;
+	h->frames[i].rect->y = 0;
+	h->frames[i].rect->w = 38;
+	h->frames[i].rect->h = 24;
+    }
 
-    h->n_frames = 1;
-    h->frame_len = 0;
+    h->n_frames = 4;
+    h->frame_len = 60;
     h->coll_checkpts = std_heli_sprite_coll_checkpts;
-    h->n_coll_checkpts = 6;
+    h->n_coll_checkpts = 13;
     /* h->free_data = &free_surfaces; */
     h->free_data = NULL;
 
@@ -71,8 +80,6 @@ void free_surfaces(Sprite *s)
 
 void animate_sprite (Sprite *s, SDL_Surface *canvas, SDL_Rect *position)
 {
-    static Uint32 switch_time = 0;
-    static int current_frame = 0;
     Uint32 now;
 
     if (s->n_frames == 1) {
@@ -82,12 +89,12 @@ void animate_sprite (Sprite *s, SDL_Surface *canvas, SDL_Rect *position)
 
     now = SDL_GetTicks();
 
-    if (now > switch_time) {
-	if (++current_frame >= s->n_frames) current_frame = 0;
-	switch_time = now + s->frame_len;
+    if (now > s->switch_time) {
+	if (++s->current_frame >= s->n_frames) s->current_frame = 0;
+	s->switch_time = now + s->frame_len;
     }
 
-    SDL_BlitSurface(s->frames[current_frame].s, s->frames[current_frame].rect,
+    SDL_BlitSurface(s->frames[s->current_frame].s, s->frames[s->current_frame].rect,
 		    canvas, position);
 }
 

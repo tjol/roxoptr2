@@ -31,6 +31,9 @@ typedef struct sprite {
     int n_coll_checkpts;
 
     void (*free_data)(struct sprite*);
+
+    Uint32 switch_time;
+    int current_frame;
 } Sprite;
 
 Sprite *load_heli(void);

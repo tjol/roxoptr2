@@ -19,7 +19,7 @@ typedef struct level_overlay Overlay;
 struct level_overlay {
     struct level_overlay *next;
 
-    void (*paint)(Level *l, struct level_overlay *ov, SDL_Surface *canvas);
+    void (*paint)(Level *l, struct level_overlay *ov, SDL_Surface *screen);
     void (*del)(struct level_overlay *ov);
 
     void *internal;

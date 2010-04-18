@@ -49,6 +49,7 @@ static Level *load_()
     level->controls = CONTROLS;
     level->del = del_;
     level->main_sprite = NULL;
+    level->overlays = NULL;
         
     return level;
 }

@@ -14,7 +14,7 @@
 
 static Overlay *alloc_fixed(struct overlay_type *t);
 static bool construct_fixed(Overlay *o, const char *key, const char *value);
-static void paint_fixed(Level *l, Overlay *o, SDL_Surface *canvas);
+static void paint_fixed(Level *l, Overlay *o, SDL_Surface *screen);
 static void del_fixed(Overlay *o);
 
 struct overlay_type overlay_types[] = {
@@ -99,7 +99,7 @@ construct_fixed(Overlay *o, const char *key, const char *value)
 }
 
 static void
-paint_fixed(Level *l, Overlay *o, SDL_Surface *canvas)
+paint_fixed(Level *l, Overlay *o, SDL_Surface *screen)
 {
     struct fixed_overlay_info *inf = o->internal;
 
@@ -108,7 +108,7 @@ paint_fixed(Level *l, Overlay *o, SDL_Surface *canvas)
     }
 
     SDL_Rect r = display_rect(inf->x, inf->y);
-    animate_sprite(inf->s, canvas, &r);
+    animate_sprite(inf->s, screen, &r);
 }
 
 static void
