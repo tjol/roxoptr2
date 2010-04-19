@@ -40,7 +40,7 @@ static void quit()
     SDL_Quit();
 }
 
-SDL_Surface *img_from_mem(void *mem, int size, int alpha)
+SDL_Surface *img_from_mem(void *mem, int size, bool alpha)
 {
     SDL_Surface *load, *ret;
     SDL_RWops *rw;
@@ -190,7 +190,7 @@ void paint_menu()
     SDL_Flip(screen);
 }
 
-void paint_banner(char *text1, char *text2, int r2, int g2, int b2, int delay)
+void paint_banner(char *text1, char *text2, int r2, int g2, int b2, Uint32 delay)
 {
     SDL_Color bg = {0,0,0};
     SDL_Color white = {255,255,255};

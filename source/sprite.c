@@ -45,7 +45,7 @@ Sprite *load_heli(void)
 
     h = malloc(sizeof(struct sprite));
 
-    heli_img = img_from_mem(heli_png, heli_png_len, 1);
+    heli_img = img_from_mem(heli_png, heli_png_len, true);
     h->frames = malloc(4 * sizeof(struct sprite_frame));
 
     for (int i = 0; i < 4; ++i) {

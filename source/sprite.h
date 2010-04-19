@@ -7,6 +7,7 @@
  *                                                                         *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
+/*!< \file */
 #ifndef R_SPRITE_H
 #define R_SPRITE_H
 
@@ -22,10 +23,11 @@ struct sprite_frame {
     SDL_Rect *rect;
 };
 
+/*! An in-game sprite. */
 typedef struct sprite {
     struct sprite_frame *frames;
     int n_frames;
-    Uint32 frame_len;
+    Uint32 frame_len; /*!< \brief Amount of time after which to switch frames. (in ms) */
 
     struct sprite_point *coll_checkpts;
     int n_coll_checkpts;
@@ -36,11 +38,27 @@ typedef struct sprite {
     int current_frame;
 } Sprite;
 
+/*! \brief Load standard heli sprite. */
 Sprite *load_heli(void);
+
+/*! \brief Display a sprite on-screen
+ *
+ * \param s		The sprite to display
+ * \param canvas	The #SDL_Surface to blit to.
+ * \param position	The area/position to blit to.
+ * \see display_rect()
+ */
 void animate_sprite(Sprite *s, SDL_Surface *canvas, SDL_Rect *position);
 
+/*! \brief Load a sprite configuration */
 Sprite *load_sprite_from_cfgfile(const char *fname);
 
+/*! \brief Attempt to find and load a sprite.
+ *
+ * \param name		a file name relative to the current directory or to 
+ * 			<CODE>sprites/</CODE> in the installation. <CODE>.cfg</CODE>
+ * 			is appended if required.
+ */
 Sprite *find_sprite(const char *name);
 
 extern Sprite *classic_heli_sprite;

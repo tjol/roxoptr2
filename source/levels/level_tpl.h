@@ -32,7 +32,7 @@ static Level *load_()
 # if defined(XPM)
     level->bg = IMG_ReadXPMFromArray(XPM);
 # elif defined(BG_BYTES)
-    level->bg = img_from_mem(BG_BYTES, BG_SIZE, 0);
+    level->bg = img_from_mem(BG_BYTES, BG_SIZE, false);
 # endif
     level->vx = VX;
     level->vy = VY;

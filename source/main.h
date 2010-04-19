@@ -7,6 +7,8 @@
  *                                                                         *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
+/*! \file */
+
 #ifndef R_MAIN_H
 #define R_MAIN_H
 
@@ -46,8 +48,17 @@ typedef struct {
     Sprite *main_sprite;
 } gamestate_t;
 
+/*! \brief State of the game. */
 extern gamestate_t thegame;
 
+/*! \brief Pause the game.
+ *
+ * This function instructs the main loop to sleep and returns immediately.
+ * Useful for displaying something meant to be read.
+ *
+ * \param tics	Time (in ms) to sleep.
+ * \see paint_banner()
+ */
 void sleep_for(Uint32 tics);
 
 #endif
