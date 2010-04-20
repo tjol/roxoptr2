@@ -24,7 +24,7 @@
 #	define CONTROLS DIR_UP
 /****************************************/
 
-#include "lv0.gif.h"
+#include "levels/lv0/lv0.gif.h"
 #include "lv0.xbm"
 
 #	define WIDTH	lv0_width
