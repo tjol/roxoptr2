@@ -4,6 +4,8 @@ else
 bin_PROGRAMS = roxoptr2
 endif
 
+CPPFLAGS = -DROXOPTR2_DATADIR=\"$(pkgdatadir)\"
+
 roxoptr2_SOURCES = main.c main.h display.c display.h game.c game.h \
 		   levels.c level.h menu.c menu.h \
 		   sprite.c sprite.h overlays.c overlays.h \

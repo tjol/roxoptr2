@@ -96,6 +96,8 @@ void init_SDL()
 # ifndef WII
     SDL_WM_SetCaption("roxoptr2", "roxoptr2");
 
+    init_fs();
+
     unsigned int bufsize = 4096;
     unsigned char *icon_buf = malloc(bufsize);
     gzFile icon_file = gzopen("icon.bmp.gz", "rb");

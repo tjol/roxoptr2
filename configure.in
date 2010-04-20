@@ -48,7 +48,7 @@ then
     CC=${DEVKITPPC}/bin/powerpc-eabi-gcc
     cross_compiling=yes
     MACHDEP="-DGEKKO -mrvl -mcpu=750 -meabi -mhard-float"
-    CFLAGS="-DWII ${MACHDEP} -I${PORTLIBS}/include -I${DEVKITPRO}/libogc/include"
+    CFLAGS="${MACHDEP} -I${PORTLIBS}/include -I${DEVKITPRO}/libogc/include"
     LDFLAGS="${MACHDEP} -L${PORTLIBS}/lib -L${DEVKITPRO}/libogc/lib/wii"
     LIBS="-lfat -lwiiuse -lbte -logc -lwiikeyboard"
     ON_WII=yes
@@ -93,6 +93,10 @@ AC_CHECK_LIB([SDL_ttf],
 
 AC_SUBST([DEVKITPPC])
 AM_CONDITIONAL([ON_WII], [test x$ON_WII = xyes])
+if test x$ON_WII = xyes
+then
+    AC_DEFINE([WII], [1])
+fi
 
-AC_OUTPUT(Makefile source/Makefile)
+AC_OUTPUT(Makefile source/Makefile leveldata/Makefile sprites/Makefile)
 

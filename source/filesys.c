@@ -37,6 +37,13 @@ bool init_fs()
 	}
 	fs_initialized = true;
     }
+#else
+#  ifdef ROXOPTR2_DATADIR
+    if (access("icon.bmp.gz", R_OK) != 0 || access("leveldata", R_OK) != 0) {
+	/* This isn't the installation directory. chdir to the right place. */
+	chdir(ROXOPTR2_DATADIR);
+    }
+#  endif
 #endif
     game_inst_path = get_pwd();
     return true;
