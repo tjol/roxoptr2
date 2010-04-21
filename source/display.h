@@ -54,8 +54,6 @@ SDL_Surface *img_from_mem(void *mem, int size, bool alpha);
  *
  * \param fname		File name.
  */
-inline SDL_Surface *img_from_file (const char *fname); /* declaration sans static for doxygen */
-
 static inline SDL_Surface *img_from_file (const char *fname)
 {
   /* IMG_Load doesn't exist on the Wii.

@@ -10,6 +10,7 @@
 #include <zlib.h>
 #include "main.h"
 #include "sprite.h"
+#include "filesys.h"
 
 static SDL_Surface *screen = NULL;
 
