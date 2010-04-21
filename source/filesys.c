@@ -339,7 +339,7 @@ finalize_zlib_getchunk(void *arg)
 }
 
 
-#ifdef WII
+#if ! HAVE_ACCESS
 int access(const char *pathname, int mode)
 {
     FILE *fp;

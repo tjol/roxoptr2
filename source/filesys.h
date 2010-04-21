@@ -52,7 +52,7 @@ void chdir_home();
 /*! \brief Make a path relative to the installation directory absolute. */
 char *path_from_home(const char *relp);
 
-#ifdef WII
+#if ! HAVE_ACCESS
 int access(const char *pathname, int mode);
 #endif
 

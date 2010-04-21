@@ -69,6 +69,11 @@ then
     AC_MSG_ERROR([Please install an ISO C99 compliant compiler.])
 fi
 
+AC_CHECK_FUNCS([access]) dnl Wii
+dnl strcasecmp should be available on modern Unices, but it might be missing
+dnl on Windows when not using a GNU toolchain. If this was a problem, it
+dnl could be fixed.
+AC_CHECK_FUNC([strcasecmp], [], AC_MSG_ERROR([strcasecmp() function not found. Sorry!]))
 AC_SEARCH_LIBS([pow], [m], , AC_MSG_ERROR([math lib error?]))
 AC_CHECK_LIB([z], [gzopen], , AC_MSG_ERROR([Unable to find zlib]))
 AC_CHECK_LIB([SDL], [SDL_RWFromMem], , AC_MSG_ERROR([Unable to find SDL!]))
@@ -85,11 +90,15 @@ AC_CHECK_LIB([SDL_image],
              [LIBS="-lSDL_image -lpng -ljpeg $LIBS"],
              AC_MSG_ERROR([Unable to find SDL_image!]),
              [-lpng -ljpeg])
+AC_CHECK_HEADER([SDL/SDL_image.h], [],
+             AC_MSG_ERROR([Unable to find SDL_image!]))
 AC_CHECK_LIB([SDL_ttf],
              [TTF_OpenFontRW],
              [LIBS="-lSDL_ttf -lfreetype $LIBS"],
              AC_MSG_ERROR([Unable to find SDL_ttf!]),
              [-lfreetype])
+AC_CHECK_HEADER([SDL/SDL_ttf.h], [],
+             AC_MSG_ERROR([Unable to find SDL_ttf!]))
 
 AC_SUBST([DEVKITPPC])
 AM_CONDITIONAL([ON_WII], [test x$ON_WII = xyes])
