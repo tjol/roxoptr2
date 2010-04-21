@@ -9,7 +9,7 @@ gendatamakefile () {
         echo "         falling back to find."
         files=`find leveldata -type f -not \( -name '*Makefile*' -o -name '*~' -o -name '.*.sw?' \)`
     fi
-    tempd=`mktemp -d rxtmp`
+    tempd=`mktemp -d rxtmp.XXXXXXXXX`
     echo -n > $1/Makefile.am
     for f in $files
     do
