@@ -78,11 +78,15 @@ AC_SEARCH_LIBS([pow], [m], , AC_MSG_ERROR([math lib error?]))
 AC_CHECK_LIB([z], [gzopen], , AC_MSG_ERROR([Unable to find zlib]))
 AC_CHECK_LIB([SDL], [SDL_RWFromMem], , AC_MSG_ERROR([Unable to find SDL!]))
 
-dnl SDL is in @LIBS@, so now I can (and should !) use SDL_main if
-dnl building for Wii.
 if test x$ON_WII = xyes
 then
+    dnl SDL is in @LIBS@, so now I can (and should !) use SDL_main if
+    dnl building for Wii.
     CFLAGS="$CFLAGS -Dmain=SDL_main"
+
+    dnl Add libs needed by SDL_image and SDL_ttf. Systems using shared
+    dnl libraries don't need to explicitly link them.
+    LIBS="-lpng -ljpeg -lfreetype ${LIBS}"
 fi
 
 AC_CHECK_LIB([SDL_image],
