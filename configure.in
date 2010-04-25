@@ -87,18 +87,22 @@ fi
 
 AC_CHECK_LIB([SDL_image],
              [IMG_Load_RW],
-             [LIBS="-lSDL_image -lpng -ljpeg $LIBS"],
-             AC_MSG_ERROR([Unable to find SDL_image!]),
-             [-lpng -ljpeg])
+             [LIBS="-lSDL_image $LIBS"],
+             AC_MSG_ERROR([Unable to find SDL_image!]))
 AC_CHECK_HEADER([SDL/SDL_image.h], [],
              AC_MSG_ERROR([Unable to find SDL_image!]))
 AC_CHECK_LIB([SDL_ttf],
              [TTF_OpenFontRW],
-             [LIBS="-lSDL_ttf -lfreetype $LIBS"],
-             AC_MSG_ERROR([Unable to find SDL_ttf!]),
-             [-lfreetype])
+             [LIBS="-lSDL_ttf $LIBS"],
+             AC_MSG_ERROR([Unable to find SDL_ttf!]))
 AC_CHECK_HEADER([SDL/SDL_ttf.h], [],
              AC_MSG_ERROR([Unable to find SDL_ttf!]))
+
+dnl These libs need linking if they exist, but don't have any
+dnl functions that are safe to check for; simply try to link.
+AC_CHECK_LIB([SDLmain], [main])
+AC_CHECK_LIB([mingw32], [main])
+
 
 AC_SUBST([DEVKITPPC])
 AM_CONDITIONAL([ON_WII], [test x$ON_WII = xyes])

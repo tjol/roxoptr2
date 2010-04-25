@@ -89,7 +89,7 @@ load_gzpbm(const char *fname, Level *l)
 {
     gzFile pf;
 
-    if (!(pf = gzopen(fname, "r"))) {
+    if (!(pf = gzopen(fname, "rb"))) {
 	fprintf(stderr, "Error opening gz file.\n");
 	return false;
     }
@@ -102,7 +102,7 @@ load_pbm(const char *fname, Level *l)
 {
     FILE *pf;
 
-    if (!(pf = fopen(fname, "r"))) {
+    if (!(pf = fopen(fname, "rb"))) {
 	perror(0);
 	return false;
     }
