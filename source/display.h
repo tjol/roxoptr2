@@ -35,6 +35,15 @@ void paint_menu();
  */
 void paint_banner(char *text1, char *text2, int r2, int g2, int b2, Uint32 delay);
 
+/*! \brief paint something and pause the game.
+ *
+ * Essentially, a glorified BlitSurface function.
+ *
+ * \param s		The SDL_Surface to blit.
+ * \param delay		Time (in ms) to sleep for.
+ */
+void paint_pixels(SDL_Surface *s, Uint32 delay);
+
 /*! \brief Load an image from memory.
  *
  * Create an #SDL_Surface from an image stored in memory, typically compiled

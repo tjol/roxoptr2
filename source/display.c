@@ -221,3 +221,14 @@ void paint_banner(char *text1, char *text2, int r2, int g2, int b2, Uint32 delay
     
     sleep_for(delay);
 }
+
+void paint_pixels(SDL_Surface *s, Uint32 delay)
+{
+    SDL_BlitSurface(s, NULL, screen, NULL);
+
+    SDL_Flip(screen);
+    sleep_for(delay);
+}
+
+
+

@@ -9,22 +9,27 @@
 
 #include "menu.h"
 
+#include "img/credits.png.h"
+
 Menu *menu_root;
 Menu *menu_current;
 
+static bool menu_painted = false;
+
 void menu_tic()
 {
-    static int painted = 0;
     static directional_t old_controls = 0;
  
-    if (!painted) {
+    if (!menu_current) return; /* NULL menu */
+
+    if (!menu_painted) {
 	paint_menu();
-	painted = 1;
+	menu_painted = true;
     }
     
     if (controls_held != old_controls) {
 	old_controls = controls_held;
-	painted = 0;
+	menu_painted = false;
 	if (controls_held & DIR_UP) {
 	    menu_current = menu_current->up;
 	}
@@ -51,13 +56,32 @@ static void quitgame(void *x)
 }
 
 static void levelmenu(void *);
+static void credits_page(void *);
+static void menu_up(void *);
+
+void free_root_menu()
+{
+    menu_up(0);
+    free_menu(false);
+}
+
+void menu_escape()
+{
+    if (!thegame.in_menu) {
+	thegame.in_menu = true;
+    } else {
+	menu_up(0);
+    }
+    menu_painted = false;
+}
 
 void init_menu()
 {
-    Menu *mstart, *mlevels, *mquit;
+    Menu *mstart, *mlevels, *mcredits, *mquit;
     
     mstart = malloc(sizeof(Menu));
     mlevels = malloc(sizeof(Menu));
+    mcredits = malloc(sizeof(Menu));
     mquit  = malloc(sizeof(Menu));
     
     mstart->text = "Start Game";
@@ -67,8 +91,13 @@ void init_menu()
     
     mlevels->text = "Select Level";
     mlevels->up   = mstart;
-    mlevels->down = mquit;
+    mlevels->down = mcredits;
     mlevels->exec = &levelmenu;
+
+    mcredits->text = "Credits";
+    mcredits->up = mlevels;
+    mcredits->down = mquit;
+    mcredits->exec = &credits_page;
     
     mquit->text = "Quit";
     mquit->up   = mlevels;
@@ -78,19 +107,22 @@ void init_menu()
     menu_root = mstart;
     menu_current = menu_root;
     
-    atexit(free_menu);
+    atexit(free_root_menu);
 }
 
-void free_menu()
+void free_menu(bool protect_root)
 {
     Menu *m = menu_current;
     Menu *next = NULL;
         
+    /* NULL menu */
+    if (!m) return;
     /* rewind */
     for (; m != m->up; m = m->up);
+    if (m == menu_root && protect_root) return;
     
     /* delete the lot */
-    while (1) {
+    while (true) {
 	next = m->down;
 	if (next == m) break;
 	free(m);
@@ -102,7 +134,7 @@ void free_menu()
 
 static void menu_up(void *x)
 {
-    free_menu();
+    free_menu(true);
     menu_current = menu_root;
 }
 
@@ -145,3 +177,11 @@ static void levelmenu(void *x)
     
     menu_current = mtop;
 }
+
+static void credits_page(void *x)
+{
+    SDL_Surface *credits_s = img_from_mem(credits_png, credits_png_len, false);
+    menu_current = NULL;
+    paint_pixels(credits_s, 2000);
+}
+

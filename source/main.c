@@ -76,7 +76,7 @@ void poll_events()
 		    case SDLK_RIGHT:	controls_held |= DIR_RIGHT;	break;
 		    case SDLK_RETURN:
 		    case SDLK_SPACE:	controls_held |= CTRL_ENTER;	break;
-		    case SDLK_ESCAPE:	thegame.in_menu = 1;		break;
+		    case SDLK_ESCAPE:	menu_escape();			break;
 		    default: break;
 		};
 		break;;
@@ -109,7 +109,7 @@ void poll_events()
     if (held & WPAD_BUTTON_RIGHT)	controls_held |= DIR_RIGHT;
     if (held & WPAD_BUTTON_A)		controls_held |= CTRL_ENTER;
     
-    if (held & WPAD_BUTTON_PLUS)	thegame.in_menu = 1;
+    if (held & WPAD_BUTTON_PLUS)	menu_escape();
     
     if (held & WPAD_BUTTON_HOME) {
 	thegame.running = false;
