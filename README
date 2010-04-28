@@ -16,9 +16,11 @@ run on any other POSIX-compatible system that is supported by SDL, SDL_image
 and SDL_ttf.
 
 
-    ================= COPYRIGHT =================
+    ================= CREDITS =======================
 
-Roxoptr2 is (c) 2010 Thomas Jollans.
-This program is free software released under the terms of the MIT license.
-For details, see COPYING.
+Roxoptr2 was written by Thomas Jollans.
+Many thanks to Mr_Nick666 for contributing vast amounts of splendid artwork.
+
+This game is a free software and a free cultural work, released under the
+terms of the MIT/X11 license. For details, see COPYING.
 
