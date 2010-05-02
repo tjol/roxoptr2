@@ -30,13 +30,15 @@ struct sprite_point std_heli_sprite_coll_checkpts[] =
 	{2, 14},
 	{10, 14},
 	{15, 15},
-	{15, 24},
-	{38, 24},
+	{15, 23},
+	{37, 23},
 	{37, 18},
 	{35, 10}
     };
 
 void free_surfaces (Sprite *);
+
+void gen_bits_from_checkpts(Sprite *s);
 
 Sprite *load_heli(void)
 {
@@ -65,6 +67,8 @@ Sprite *load_heli(void)
     h->switch_time = 0;
     /* h->free_data = &free_surfaces; */
     h->free_data = NULL;
+
+    gen_bits_from_checkpts(h);
 
     return h;
 }
@@ -245,6 +249,10 @@ load_sprite_from_cfgfile(const char *fname)
     chdir(old_pwd);
     fclose(fp);
 
+    if (sp->coll_checkpts) {
+	gen_bits_from_checkpts(sp);
+    }
+
     return sp;
 }
 
@@ -287,5 +295,34 @@ Sprite *
 find_sprite(const char *name)
 {
     return find_sprite_(name, false);
+}
+
+void
+gen_bits_from_checkpts(Sprite *s)
+{
+    unsigned int w = s->frames[0].rect->w;
+    unsigned int h = s->frames[0].rect->h;
+    unsigned int byte_w = (w / 8) + ((w % 8) == 0 ? 0 : 1);
+
+    unsigned char *bits;
+    unsigned int i;
+    unsigned int x, y;
+
+    size_t sz;
+
+    sz = (h * byte_w);
+    bits = calloc(sz, sizeof(char));
+
+    for (i=0; i < s->n_coll_checkpts; ++i) {
+	x = s->coll_checkpts[i].relx;
+	y = s->coll_checkpts[i].rely;
+	bits [ (byte_w*y) + (x/8) ] |= (1 << (x%8));
+    }
+
+    for (i=0; i < s->n_frames; ++i) {
+	s->frames[i].coll_bits = bits;
+    }
+
+    return;
 }
 

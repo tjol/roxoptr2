@@ -12,10 +12,10 @@
 #ifndef R_FILESYS_H_
 #define R_FILESYS_H_
 
-#include "level.h"
 #include <zlib.h>
 #include <unistd.h>
 #include <errno.h>
+#include <stdio.h>
 
 #include <stdbool.h>
 
@@ -26,9 +26,9 @@
  */
 bool init_fs();
 
-bool load_gzpbm(const char *fname, Level *l);
-bool load_zpbm(const char *fname, Level *l);
-bool load_pbm(const char *fname, Level *l);
+bool load_gzpbm(const char *fname, unsigned *w, unsigned *h, unsigned char **bitsbuf);
+/*bool load_zpbm(const char *fname, unsigned *w, unsigned *h, unsigned char **bitsbuf);*/
+bool load_pbm(const char *fname, unsigned *w, unsigned *h, unsigned char **bitsbuf);
 
 typedef size_t (*get_chunk_f)(unsigned char **, size_t *, void *);
 

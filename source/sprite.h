@@ -21,6 +21,7 @@ struct sprite_point {
 struct sprite_frame {
     SDL_Surface *s;
     SDL_Rect *rect;
+    unsigned char *coll_bits;
 };
 
 /*! An in-game sprite. */

@@ -10,8 +10,14 @@
 #include "game.h"
 #include "main.h"
 #include "sprite.h"
+#include <stdbool.h>
+#include <arpa/inet.h>
 
 directional_t controls_held = 0;
+
+bool
+collide_bitmaps (Uint8 *a, Uint32 a_w, Uint32 a_h,
+		 Uint8 *b, Uint32 b_w, Uint32 b_h, Uint32 b_x, Uint32 b_y);
 
 void game_tic()
 {
@@ -48,13 +54,11 @@ void game_tic()
     
     /**** check for collisions *************************/
     
-    collision = 0;
-    for (i=0; i < thegame.main_sprite->n_coll_checkpts; ++i) {
-	collision |= GET_BIT(lv, thegame.heli_xpos + thegame.main_sprite->coll_checkpts[i].relx,
-				 thegame.heli_ypos + thegame.main_sprite->coll_checkpts[i].rely);
-    }
-
-    if (collision) {
+    struct sprite_frame *frm = &(thegame.main_sprite->frames
+				    [thegame.main_sprite->current_frame]);
+    if (collide_bitmaps(lv->bits, lv->w, lv->h,
+			frm->coll_bits, frm->rect->w, frm->rect->h,
+					thegame.heli_xpos, thegame.heli_ypos)) {
 	thegame.running = false;
 	paint_banner("You hit an obstacle", "FAIL", 255, 0, 0, 3000);
     }    
@@ -93,4 +97,37 @@ void game_tic()
     }
     
 }
+
+
+bool
+collide_bitmaps (Uint8 *a, Uint32 a_w, Uint32 a_h,
+		 Uint8 *b, Uint32 b_w, Uint32 b_h, Uint32 b_x, Uint32 b_y)
+{
+    Uint32 x, y;
+
+    Uint32 a_byte_w = (a_w / 8) + ((a_w % 8) == 0 ? 0 : 1);
+    Uint32 b_byte_w = (b_w / 8) + ((b_w % 8) == 0 ? 0 : 1);
+
+    Uint8 *a_byte;
+    Uint8 *b_byte;
+    Uint16 shifted;
+
+    int bit_delta = 8 - (b_x % 8);
+
+    for (y = b_y; y < b_y + b_h && y < a_h; ++y) {
+	for (x = b_x; x < b_x + b_w && x < a_w; x+=8) {
+	    a_byte = a + y*a_byte_w + x/8;
+	    b_byte = b + (y-b_y)*b_byte_w + (x-b_x)/8;
+	    shifted = (ntohs(*((Uint16*)a_byte)) >> bit_delta) & 0xff;
+
+	    if ((*b_byte) & shifted) {
+		return true;
+	    }
+	}
+    }
+
+    return false;
+}
+
+
 

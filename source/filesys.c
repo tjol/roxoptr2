@@ -19,7 +19,9 @@
 #define R_CHUNK 512
 
 
-static bool load_pbm_from(get_chunk_f get_more, void *arg, Level *l);
+static bool
+load_pbm_from(get_chunk_f get_more, void *arg,
+	      unsigned *w, unsigned *h, unsigned char **bitsbuf);
 
 static char *game_inst_path;
 
@@ -85,7 +87,7 @@ char *path_from_home(const char *relp)
 
 
 bool
-load_gzpbm(const char *fname, Level *l)
+load_gzpbm(const char *fname, unsigned *w, unsigned *h, unsigned char **bitsbuf)
 {
     gzFile pf;
 
@@ -94,11 +96,11 @@ load_gzpbm(const char *fname, Level *l)
 	return false;
     }
 
-    return load_pbm_from((get_chunk_f)&gz_getchunk, pf, l);
+    return load_pbm_from((get_chunk_f)&gz_getchunk, pf, w, h, bitsbuf);
 }
 
 bool
-load_pbm(const char *fname, Level *l)
+load_pbm(const char *fname, unsigned *w, unsigned *h, unsigned char **bitsbuf)
 {
     FILE *pf;
 
@@ -107,11 +109,12 @@ load_pbm(const char *fname, Level *l)
 	return false;
     }
 
-    return load_pbm_from((get_chunk_f)&f_getchunk, pf, l);
+    return load_pbm_from((get_chunk_f)&f_getchunk, pf, w, h, bitsbuf);
 }
 
 static bool
-load_pbm_from(get_chunk_f get_more, void *arg, Level *l)
+load_pbm_from(get_chunk_f get_more, void *arg,
+	      unsigned *w_, unsigned *h_, unsigned char **bitsbuf)
 {
     unsigned char *buf;
     unsigned char *end;
@@ -171,8 +174,8 @@ load_pbm_from(get_chunk_f get_more, void *arg, Level *l)
 		in_header = 0;
 		size_line[i] = '\0';
 		sscanf(size_line, "%d %d", &w, &h);
-		l->w = w;
-		l->h = h;
+		*w_ = w;
+		*h_ = h;
 		/*temp*/x = ((w+7) >> 3) * h;
 		bits = malloc(x);
 		thisbyte = bits;
@@ -217,7 +220,7 @@ load_pbm_from(get_chunk_f get_more, void *arg, Level *l)
 	    *(thisbyte++) = *(buf++); 
     }
 
-    l->bits = bits;
+    *bitsbuf = bits;
     return true;
 }
 
