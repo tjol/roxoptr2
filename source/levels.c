@@ -108,7 +108,7 @@ void free_levels()
     levels = NULL;
 }
 
-int start_level(LevelList *ll)
+bool start_level(LevelList *ll)
 {
     if (!ll) return 0;
     

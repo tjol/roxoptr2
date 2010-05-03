@@ -105,7 +105,7 @@ extern LevelList *levels;
 void init_levels();
 void del_levels();
 
-int start_level(LevelList *ll);
+bool start_level(LevelList *ll);
 
 #endif
 
