@@ -109,28 +109,40 @@ collide_bitmaps (Uint8 *a, int a_w, int a_h, int a_x, int a_y,
     unsigned a_byte_w = (a_w / 8) + ((a_w % 8) == 0 ? 0 : 1);
     unsigned b_byte_w = (b_w / 8) + ((b_w % 8) == 0 ? 0 : 1);
 
+    Uint8 *a_byte0;
     Uint8 *a_byte1;
     Uint8 *a_byte2;
     Uint8 *b_byte;
-    Uint16 shifted;
+    Uint32 shifted;
 
     Uint8 default_byte = stay_within ? 0xff : 0x00;
 
-    if ( a_x % 8 > b_x % 8 ) {
-	return collide_bitmaps(b, b_w, b_h, b_x, b_y, a, a_w, a_h, a_x, a_y, stay_within);
+    /* I don't work with negative numbers. */
+    if ( a_x < 0 ) {
+	return collide_bitmaps(a, a_w, a_h, 0, a_y, b, b_w, b_h, b_x-a_x, b_y, stay_within);
+    }
+    if ( b_x < 0 ) {
+	return collide_bitmaps(a, a_w, a_h, a_x-b_x, a_y, b, b_w, b_h, 0, b_y, stay_within);
     }
     int bit_delta = 8 - (b_x % 8) + (a_x % 8);
 
     for (y = b_y; y < b_y + b_h; ++y) {
+	if (!stay_within && ( y < a_y || y > a_y + a_h)) continue;
 	for (x = b_x; x < b_x + b_w; x+=8) {
-	    a_byte1 = ( x < a_x + a_w && y < a_y + a_h
-		     && x >= a_x      && y >= a_y      ) ? (a + y*a_byte_w + x/8)
-							 : &default_byte;
-	    a_byte2 = ( x+8 < a_x + a_w && y < a_y + a_h
-		     && x+8 >= a_x      && y >= a_y      ) ? (a + y*a_byte_w + x/8 + 1)
-							   : &default_byte;
+	    if (y < a_y + a_h && y >= a_y) {
+		a_byte1 = ( x < a_x + a_w && x >= a_x )	? (a + (y-a_y)*a_byte_w + x/8 - a_x/8)
+							: &default_byte;
+		a_byte0 = ( x-8 < a_x + a_w && x-8 >= a_x ) ? (a + (y-a_y)*a_byte_w + x/8
+								    - a_x/8 - 1)
+							    : &default_byte;
+		a_byte2 = ( x+8 < a_x + a_w && x+8 >= a_x ) ? (a + (y-a_y)*a_byte_w + x/8
+								    - a_x/8 + 1)
+							    : &default_byte;
+	    } else {
+		a_byte1 = a_byte2 = &default_byte;
+	    }
 	    b_byte = b + (y-b_y)*b_byte_w + (x-b_x)/8;
-	    shifted = ((*a_byte1 << 8 | *a_byte2) >> bit_delta) & 0xff;
+	    shifted = ((*a_byte0 << 16 | *a_byte1 << 8 | *a_byte2) >> bit_delta) & 0xff;
 
 	    if ((*b_byte) & shifted) {
 		return true;
