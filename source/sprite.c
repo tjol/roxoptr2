@@ -24,7 +24,8 @@ void free_surfaces (Sprite *);
 
 void gen_bits_from_checkpts(Sprite *s);
 
-Sprite *load_heli(void)
+Sprite *
+load_heli(void)
 {
     struct sprite *h;
     SDL_Surface *heli_img;
@@ -55,7 +56,8 @@ Sprite *load_heli(void)
     return h;
 }
 
-void free_surfaces(Sprite *s)
+void
+free_surfaces(Sprite *s)
 {
     int i;
 
@@ -66,7 +68,8 @@ void free_surfaces(Sprite *s)
     s->frames = NULL;
 }
 
-void animate_sprite (Sprite *s, SDL_Surface *canvas, SDL_Rect *position)
+void
+animate_sprite (Sprite *s, SDL_Surface *canvas, SDL_Rect *position)
 {
     Uint32 now;
 
@@ -88,6 +91,8 @@ void animate_sprite (Sprite *s, SDL_Surface *canvas, SDL_Rect *position)
 
 static SDL_Surface **surfaces_ = NULL;
 static int n_surfaces_;
+static unsigned char **bits_a_ = NULL;
+static int n_bits_;
 
 static bool
 sprite_load_cb (struct cfg_section *sect,
@@ -96,6 +101,7 @@ sprite_load_cb (struct cfg_section *sect,
 {
     int i;
     int surface;
+    int bitmap;
     int x,y,w,h;
 
     switch (sect->id) {
@@ -121,36 +127,29 @@ sprite_load_cb (struct cfg_section *sect,
 	    }
 	    break;;
 
-	case 2: /* frames */
+	case 2: /* coll maps */
 	    if (tolower(key[0]) == 'n') {
-		sp->n_frames = atoi(val);
-		if (sp->n_frames == 0) {
-		    fprintf(stderr, "ERROR: No frames. \n");
+		n_bits_ = atoi(val);
+		if (n_bits_ == 0) {
+		    fprintf(stderr, "ERROR: No collision bitmaps. \n");
 		    return false;
 		}
-		sp->frames = malloc(sp->n_frames * sizeof(struct sprite_frame));
-	    } else if (!(sp->frames)) {
-		fprintf(stderr, "ERROR: Number of frames must be specified first.\n");
+		bits_a_ = malloc(n_bits_ * sizeof(char *));
+	    } else if (!bits_a_) {
+		fprintf(stderr, "ERROR: Number of bitmaps must be specified first.\n");
 		return false;
-	    } else if ((i = atoi(key)) >= sp->n_frames) {
+	    } else if ((i = atoi(key)) >= n_bits_) {
 		fprintf(stderr, "ERROR: Index out of bounds: %d.\n", i);
 		return false;
 	    } else {
-		sscanf(val, "%d %d %d %d %d", &surface, &x, &y, &w, &h);
-		if (surface >= n_surfaces_) {
-		    fprintf(stderr, "ERROR: No such surface: %d.\n", surface);
+		if (!load_bitmap(val, NULL, NULL, &bits_a_[i])) {
+		    fprintf(stderr, "ERROR: Failed to load file %s.\n", val);
 		    return false;
 		}
-		sp->frames[i].s = surfaces_[surface];
-		sp->frames[i].rect = malloc(sizeof(SDL_Rect));
-		sp->frames[i].rect->x = x;
-		sp->frames[i].rect->y = y;
-		sp->frames[i].rect->w = w;
-		sp->frames[i].rect->h = h;
 	    }
 	    break;;
 
-	case 3: /* coll pts */
+	case 3: /* coll pts */ /* DEPRECATED */
 	    if (tolower(key[0]) == 'n') {
 		sp->n_coll_checkpts = atoi(val);
 		if (sp->n_coll_checkpts == 0) {
@@ -174,7 +173,47 @@ sprite_load_cb (struct cfg_section *sect,
 	    }
 	    break;;
 
-	case 4: /* animation */
+	case 4: /* frames */
+	    if (tolower(key[0]) == 'n') {
+		sp->n_frames = atoi(val);
+		if (sp->n_frames == 0) {
+		    fprintf(stderr, "ERROR: No frames. \n");
+		    return false;
+		}
+		sp->frames = malloc(sp->n_frames * sizeof(struct sprite_frame));
+	    } else if (!(sp->frames)) {
+		fprintf(stderr, "ERROR: Number of frames must be specified first.\n");
+		return false;
+	    } else if ((i = atoi(key)) >= sp->n_frames) {
+		fprintf(stderr, "ERROR: Index out of bounds: %d.\n", i);
+		return false;
+	    } else {
+		if (bits_a_) {
+		    sscanf(val, "%d %d %d %d %d %d", &surface, &bitmap, &x, &y, &w, &h);
+		    if (bitmap >= n_bits_) {
+			fprintf(stderr, "ERROR: No such surface: %d.\n", surface);
+			return false;
+		    }
+		} else {
+		    sscanf(val, "%d %d %d %d %d", &surface, &x, &y, &w, &h);
+		}
+		if (surface >= n_surfaces_) {
+		    fprintf(stderr, "ERROR: No such surface: %d.\n", surface);
+		    return false;
+		}
+		sp->frames[i].s = surfaces_[surface];
+		sp->frames[i].rect = malloc(sizeof(SDL_Rect));
+		sp->frames[i].rect->x = x;
+		sp->frames[i].rect->y = y;
+		sp->frames[i].rect->w = w;
+		sp->frames[i].rect->h = h;
+		if (bits_a_) {
+		    sp->frames[i].coll_bits = bits_a_[bitmap];
+		}
+	    }
+	    break;;
+
+	case 5: /* animation */
 	    if (strcasecmp(key, "frame ms") != 0) {
 		fprintf(stderr, "ERROR: Unknown setting: %s\n", key); 
 		return false;
@@ -192,9 +231,10 @@ load_sprite_from_cfgfile(const char *fname)
 {
     static struct cfg_section sections[] = {
 	{ 1, "img files" },
-	{ 2, "frames" },
+	{ 2, "coll maps" },
 	{ 3, "coll pts" },
-	{ 4, "animation" },
+	{ 4, "frames" },
+	{ 5, "animation" },
 	{ 0, NULL } /* sentinel */
     };
 
@@ -222,18 +262,19 @@ load_sprite_from_cfgfile(const char *fname)
 
     surfaces_ = NULL;
     n_surfaces_ = 0;
+    bits_a_ = NULL;
+    n_bits_ = 0;
     if (!read_cfg_file(fp, sections, (cfg_callback_f)&sprite_load_cb, sp)) {
 	free(sp);
 	sp = NULL;
 	/* return NULL below */
+    } else if (sp->coll_checkpts) {
+	gen_bits_from_checkpts(sp);
     }
+
 
     chdir(old_pwd);
     fclose(fp);
-
-    if (sp->coll_checkpts) {
-	gen_bits_from_checkpts(sp);
-    }
 
     return sp;
 }

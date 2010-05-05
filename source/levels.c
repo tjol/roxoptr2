@@ -136,7 +136,6 @@ load_callback(struct cfg_section *sect, const char *key, const char *value, void
 {
     LevelList *ll = ll_;
     SDL_Surface *bg_l;
-    int l;
     double xd,yd;
     unsigned int xu, yu;
     double visible;
@@ -153,16 +152,8 @@ load_callback(struct cfg_section *sect, const char *key, const char *value, void
 	    if (strcasecmp(key, "name") == 0) {
 		ll->title = strdup(value);
 	    } else if (strcasecmp(key, "bits") == 0) {
-		/* file type? */
-		l = strlen(value);
-		if (strcasecmp(value+l-7, ".pbm.gz") == 0) {
-		    ok = load_gzpbm(value, &ll->level->w, &ll->level->h, &ll->level->bits);
-		} else if (strcasecmp(value+l-4, ".pbm") == 0) {
-		    ok = load_pbm(value, &ll->level->w, &ll->level->h, &ll->level->bits);
-		} else {
-		    fprintf(stderr, "%s: error: unknown bit-map format.\n", value);
-		    return false;
-		}
+		ok = load_bitmap(value, &ll->level->w, &ll->level->h, &ll->level->bits);
+
 		if (!ok) {
 		    fprintf(stderr, "Error loading bit-map.\n");
 		    return false;

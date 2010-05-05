@@ -26,6 +26,7 @@
  */
 bool init_fs();
 
+bool load_bitmap(const char *fname, unsigned *w, unsigned *h, unsigned char **bitsbuf);
 bool load_gzpbm(const char *fname, unsigned *w, unsigned *h, unsigned char **bitsbuf);
 /*bool load_zpbm(const char *fname, unsigned *w, unsigned *h, unsigned char **bitsbuf);*/
 bool load_pbm(const char *fname, unsigned *w, unsigned *h, unsigned char **bitsbuf);

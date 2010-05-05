@@ -12,6 +12,7 @@
 
 #include <stdio.h>
 #include <zlib.h>
+#include <string.h>
 #ifdef WII
 # include <fat.h>
 #endif
@@ -85,6 +86,20 @@ char *path_from_home(const char *relp)
     return ret;
 }
 
+bool
+load_bitmap(const char *fname, unsigned *w, unsigned *h, unsigned char **bitsbuf)
+{
+    /* file type? */
+    int l = strlen(fname);
+    if (strcasecmp(fname+l-7, ".pbm.gz") == 0) {
+	return load_gzpbm(fname, w, h, bitsbuf);
+    } else if (strcasecmp(fname+l-4, ".pbm") == 0) {
+	return load_pbm(fname, w, h, bitsbuf);
+    } else {
+	fprintf(stderr, "%s: error: unknown bit-map format.\n", fname);
+	return false;
+    }
+}
 
 bool
 load_gzpbm(const char *fname, unsigned *w, unsigned *h, unsigned char **bitsbuf)
@@ -174,8 +189,8 @@ load_pbm_from(get_chunk_f get_more, void *arg,
 		in_header = 0;
 		size_line[i] = '\0';
 		sscanf(size_line, "%d %d", &w, &h);
-		*w_ = w;
-		*h_ = h;
+		if (w_) *w_ = w;
+		if (h_) *h_ = h;
 		/*temp*/x = ((w+7) >> 3) * h;
 		bits = malloc(x);
 		thisbyte = bits;
