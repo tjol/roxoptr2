@@ -15,8 +15,9 @@
 directional_t controls_held = 0;
 
 bool
-collide_bitmaps (Uint8 *a, int a_w, int a_h,
-		 Uint8 *b, int b_w, int b_h, int b_x, int b_y);
+collide_bitmaps (Uint8 *a, int a_w, int a_h, int a_x, int a_y,
+		 Uint8 *b, int b_w, int b_h, int b_x, int b_y,
+		 bool stay_within);
 
 void game_tic()
 {
@@ -35,6 +36,17 @@ void game_tic()
 	ypos = thegame.heli_ypos;
     }
     
+    /**** check for collisions *************************/
+    
+    struct sprite_frame *frm = &(thegame.main_sprite->frames
+				    [thegame.main_sprite->current_frame]);
+    if (collide_bitmaps(lv->bits, lv->w, lv->h, 0, 0,
+			frm->coll_bits, frm->rect->w, frm->rect->h,
+					thegame.heli_xpos, thegame.heli_ypos, true)) {
+	thegame.running = false;
+	paint_banner("You hit an obstacle", "FAIL", 255, 0, 0, 3000);
+    }    
+
     /**** move heli ************************************/
     controls_held &= lv->controls;
     
@@ -51,17 +63,6 @@ void game_tic()
     thegame.heli_xpos = (int) xpos;
     thegame.heli_ypos = (int) ypos;
     
-    /**** check for collisions *************************/
-    
-    struct sprite_frame *frm = &(thegame.main_sprite->frames
-				    [thegame.main_sprite->current_frame]);
-    if (collide_bitmaps(lv->bits, lv->w, lv->h,
-			frm->coll_bits, frm->rect->w, frm->rect->h,
-					thegame.heli_xpos, thegame.heli_ypos)) {
-	thegame.running = false;
-	paint_banner("You hit an obstacle", "FAIL", 255, 0, 0, 3000);
-    }    
-
     /**** adjust visible area **************************/
     
     if (   (delta = SCREEN_W - thegame.heli_xpos + thegame.xpos
@@ -99,28 +100,37 @@ void game_tic()
 
 
 bool
-collide_bitmaps (Uint8 *a, int a_w, int a_h,
-		 Uint8 *b, int b_w, int b_h, int b_x, int b_y)
+collide_bitmaps (Uint8 *a, int a_w, int a_h, int a_x, int a_y,
+		 Uint8 *b, int b_w, int b_h, int b_x, int b_y,
+		 bool stay_within)
 {
     int x, y;
 
     unsigned a_byte_w = (a_w / 8) + ((a_w % 8) == 0 ? 0 : 1);
     unsigned b_byte_w = (b_w / 8) + ((b_w % 8) == 0 ? 0 : 1);
 
-    Uint8 *a_byte;
+    Uint8 *a_byte1;
+    Uint8 *a_byte2;
     Uint8 *b_byte;
     Uint16 shifted;
 
-    int bit_delta = 8 - (b_x % 8);
+    Uint8 default_byte = stay_within ? 0xff : 0x00;
 
-    for (y = b_y; y < b_y + b_h && y < a_h; ++y) {
-	for (x = b_x; x < b_x + b_w && x < a_w; x+=8) {
-	    a_byte = a + y*a_byte_w + x/8;
+    if ( a_x % 8 > b_x % 8 ) {
+	return collide_bitmaps(b, b_w, b_h, b_x, b_y, a, a_w, a_h, a_x, a_y, stay_within);
+    }
+    int bit_delta = 8 - (b_x % 8) + (a_x % 8);
+
+    for (y = b_y; y < b_y + b_h; ++y) {
+	for (x = b_x; x < b_x + b_w; x+=8) {
+	    a_byte1 = ( x < a_x + a_w && y < a_y + a_h
+		     && x >= a_x      && y >= a_y      ) ? (a + y*a_byte_w + x/8)
+							 : &default_byte;
+	    a_byte2 = ( x+8 < a_x + a_w && y < a_y + a_h
+		     && x+8 >= a_x      && y >= a_y      ) ? (a + y*a_byte_w + x/8 + 1)
+							   : &default_byte;
 	    b_byte = b + (y-b_y)*b_byte_w + (x-b_x)/8;
-	    /* don't just interpret the address as a short: this only works on
-	     * big-endian machines. */
-	    shifted = ((*a_byte << 8 | ((x/8+1 < a_byte_w) ? *(a_byte+1) : 0))
-					>> bit_delta) & 0xff;
+	    shifted = ((*a_byte1 << 8 | *a_byte2) >> bit_delta) & 0xff;
 
 	    if ((*b_byte) & shifted) {
 		return true;
