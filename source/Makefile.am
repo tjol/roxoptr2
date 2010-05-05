@@ -25,7 +25,8 @@ BUILT_SOURCES = data/DejaVuSans-Bold.ttf.h \
 
 EXTRA_DIST = data/DejaVuSans-Bold.ttf img/heli.png \
 			 levels/lv0/lv0.gif
-CLEANFILES = data/DejaVuSans-Bold.ttf.h img/heli.png.h \
+CLEANFILES = data/DejaVuSans-Bold.ttf.h \
+			 img/heli.png.h img/credits.png.h \
 	     levels/lv0/lv0.gif.h
 
 XTOHTRICK = mkdir -p `dirname $@`; \
