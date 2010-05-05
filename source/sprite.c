@@ -12,29 +12,13 @@
 #include <unistd.h>
 
 #include "img/heli.png.h"
+#include "img/heli.xbm"
 #include "display.h"
 #include "sprite.h"
 #include "cfgparser.h"
 #include "filesys.h"
 
 Sprite *classic_heli_sprite;
-
-struct sprite_point std_heli_sprite_coll_checkpts[] = 
-    {
-	{12, 0},
-	{33, 0},
-	{9, 4},
-	{36, 4},
-	{2, 6},
-	{0, 10},
-	{2, 14},
-	{10, 14},
-	{15, 15},
-	{15, 23},
-	{37, 23},
-	{37, 18},
-	{35, 10}
-    };
 
 void free_surfaces (Sprite *);
 
@@ -55,20 +39,18 @@ Sprite *load_heli(void)
 	h->frames[i].rect = malloc(sizeof(SDL_Rect));
 	h->frames[i].rect->x = i * 38;
 	h->frames[i].rect->y = 0;
-	h->frames[i].rect->w = 38;
-	h->frames[i].rect->h = 24;
+	h->frames[i].rect->w = heli_width;
+	h->frames[i].rect->h = heli_height;
+	h->frames[i].coll_bits = heli_bits;
     }
 
     h->n_frames = 4;
     h->frame_len = 60;
-    h->coll_checkpts = std_heli_sprite_coll_checkpts;
     h->n_coll_checkpts = 13;
     h->current_frame = 0;
     h->switch_time = 0;
     /* h->free_data = &free_surfaces; */
     h->free_data = NULL;
-
-    gen_bits_from_checkpts(h);
 
     return h;
 }
