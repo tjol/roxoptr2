@@ -2,12 +2,27 @@
 <app version="1">
     <name>roxoptr2</name>
     <coder>Thomas Jollans</coder>
-    <version>0.2~a1</version>
-    <release_date>201004091200</release_date>
+    <version>0.2</version>
+    <release_date>201005070000</release_date>
     <short_description>Helicopter fun.</short_description>
-    <long_description>You fly a 2D helicopter around 2D obstacles.
-	Don't laugh, it's not that easy! Finally also on the Wii, a successor to the
-	completely unknown rockopter script. Have fun!
+    <long_description>
+        It's simple: fly the little helicopter around all those BIG
+        obstables. Don't leave the playing field! (except at the right
+        places) Where are these places? You'll see. Or maybe you won't,
+        but then you can always play again.
+
+        New in this version:
+            * animation
+            * new levels
+            * better collision detection
+            * did I mention the new levels?
+
+        Control the heli with the D-Pad on your primary WiiMote.
+
+        Thanks a lot to Mr_Nick666, of Wii Double Down fame, for his amazing
+        artwork.
+
+        Roxoptr2 is a free game.
     </long_description>
 </app>
 
