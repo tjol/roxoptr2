@@ -1,0 +1,36 @@
+INSTALLATION
+============
+
+To build roxoptr2 from source, you will need:
+
+ * a reasonably POSIX-compatible UNIX or UNIX-like system
+ * a working C (ISO/1999) compiler (gcc and LLVM/clang are good)
+ * libSDL
+ * libSDL_image
+ * libSDL_ttf
+ * zlib
+
+Build and install with the typical GNU-style triplet of:
+  ./configure
+  make
+  make install		# as root
+
+If there is no ./configure script, you've probably got a copy of the
+development tree. Make sure you have GNU autoconf and automake, and
+run ./bootstrap.sh to generate all the boilerplate code.
+
+To build the game for the Wii, you will need:
+ * the typical unofficial Wii SDK:
+   - devkitPPC
+   - libogc
+   - portlibs
+ * SDL wii
+ * a reasonably UNIX-like system
+
+Make sure ${DEVKITPRO} and ${DEVKITPPC} are set correctly (you probably
+know the drill) and run
+    ./configure --with-devkitpro
+to configure, and 
+    make
+to build source/boot.dol (and source/boot.elf along the way)
+

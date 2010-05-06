@@ -2,10 +2,13 @@
     ====================== ROXOPTR2 ======================
     \====================================================/
 
-ROXOPTR2 is a simple SDL-based helicopter game similar to its amazingly
-simple Python/Tkinter-based predecessor, rockopter.
+ROXOPTR2 is a simple SDL-based helicopter game.
 You steer the helicopter around obstacles using your arrow keys or
 (on the Wii) the D-pad on your primary WiiMote. 
+
+    "reprise d'un grand classique ;-)"
+				   -- comment in a gaming forum.
+
 Leaving the playing field or running into obstacles is fatal. Be sure to
 note that an obstacle might just look like an obstacle but actually allow
 you to pass.
