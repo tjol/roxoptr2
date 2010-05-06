@@ -15,6 +15,7 @@
 static Overlay *alloc_fixed(struct overlay_type *t);
 static bool construct_fixed(Overlay *o, const char *key, const char *value);
 static void paint_fixed(Level *l, Overlay *o, SDL_Surface *screen);
+static bool run_fixed(Level *l, Overlay *o);
 static void del_fixed(Overlay *o);
 
 struct overlay_type overlay_types[] = {
@@ -73,6 +74,7 @@ alloc_fixed(struct overlay_type *t)
     ret = malloc(sizeof(Overlay));
     ret->next = NULL;
     ret->paint = &paint_fixed;
+    ret->keep_running = &run_fixed;
     ret->del = &del_fixed;
 
     ret_info = malloc(sizeof(struct fixed_overlay_info));
@@ -109,6 +111,21 @@ paint_fixed(Level *l, Overlay *o, SDL_Surface *screen)
 
     SDL_Rect r = display_rect(inf->x, inf->y);
     animate_sprite(inf->s, screen, &r);
+}
+
+static bool
+run_fixed(Level *l, Overlay *o)
+{
+    struct fixed_overlay_info *inf = o->internal;
+
+    struct sprite_frame *frm = &(inf->s->frames[inf->s->current_frame]);
+    
+    if (collide_main_sprite(frm->coll_bits, frm->rect->w, frm->rect->h,
+					    inf->x, inf->y)) {
+	return false;
+    } else {
+	return true;
+    }
 }
 
 static void

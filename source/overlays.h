@@ -30,6 +30,16 @@ struct level_overlay {
      * \see display_rect()
      */
     void (*paint)(Level *l, struct level_overlay *ov, SDL_Surface *screen);
+
+    /*! \brief run additional game logic
+     *
+     * Check for heli/overlay collisions etc.
+     *
+     * \see collide_bitmaps()
+     * \returns false to signalize that the player has lost, true otherwise
+     */
+    bool (*keep_running)(Level *l, struct level_overlay *ov); 
+
     void (*del)(struct level_overlay *ov);/*! \brief Destructor. */
 
     void *internal;

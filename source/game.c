@@ -14,17 +14,13 @@
 
 directional_t controls_held = 0;
 
-bool
-collide_bitmaps (Uint8 *a, int a_w, int a_h, int a_x, int a_y,
-		 Uint8 *b, int b_w, int b_h, int b_x, int b_y,
-		 bool stay_within);
-
 void game_tic()
 {
     double vx, vy;
     int delta;
-    int collision;
+    bool collision;
     int i;
+    Overlay *lov;
     
     static double xpos = -1;
     static double ypos = -1;
@@ -40,9 +36,14 @@ void game_tic()
     
     struct sprite_frame *frm = &(thegame.main_sprite->frames
 				    [thegame.main_sprite->current_frame]);
-    if (collide_bitmaps(lv->bits, lv->w, lv->h, 0, 0,
-			frm->coll_bits, frm->rect->w, frm->rect->h,
-					thegame.heli_xpos, thegame.heli_ypos, true)) {
+    collision = collide_bitmaps(lv->bits, lv->w, lv->h, 0, 0,
+				frm->coll_bits, frm->rect->w, frm->rect->h,
+						thegame.heli_xpos, thegame.heli_ypos, true);
+    for (lov = lv->overlays; !collision && lov; lov = lov->next) {
+	collision = ! lov->keep_running(lv, lov);
+    }
+
+    if (collision) {
 	thegame.running = false;
 	paint_banner("You hit an obstacle", "FAIL", 255, 0, 0, 3000);
     }    
@@ -153,5 +154,13 @@ collide_bitmaps (Uint8 *a, int a_w, int a_h, int a_x, int a_y,
     return false;
 }
 
-
+bool
+collide_main_sprite (Uint8 *other, int w, int h, int x, int y)
+{
+    struct sprite_frame *frm = &(thegame.main_sprite->frames
+				    [thegame.main_sprite->current_frame]);
+    return collide_bitmaps(other, w, h, x, y,
+			   frm->coll_bits, frm->rect->w, frm->rect->h,
+					   thegame.heli_xpos, thegame.heli_ypos, false);
+}
 
