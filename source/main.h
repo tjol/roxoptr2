@@ -7,6 +7,8 @@
  *                                                                         *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
+/*! \file */
+
 #ifndef R_MAIN_H
 #define R_MAIN_H
 
@@ -29,24 +31,35 @@
 #include "menu.h"
 
 #define ITER_MIN_TICKS 15
-extern time_t iter_ticks;
+extern Uint32 iter_ticks;
 
 typedef struct {
     Level *current_level;
     
-    unsigned int xpos;
-    unsigned int ypos;
+    int xpos;
+    int ypos;
     
-    unsigned int heli_xpos;
-    unsigned int heli_ypos;
+    int heli_xpos;
+    int heli_ypos;
     
-    int running;
-    int in_menu;
+    bool running;
+    bool in_menu;
+
+    Sprite *main_sprite;
 } gamestate_t;
 
+/*! \brief State of the game. */
 extern gamestate_t thegame;
 
-void sleep_for(time_t);
+/*! \brief Pause the game.
+ *
+ * This function instructs the main loop to sleep and returns immediately.
+ * Useful for displaying something meant to be read.
+ *
+ * \param tics	Time (in ms) to sleep.
+ * \see paint_banner()
+ */
+void sleep_for(Uint32 tics);
 
 #endif
 

@@ -10,22 +10,22 @@
 #include "main.h"
 
 gamestate_t thegame;
-time_t iter_ticks = ITER_MIN_TICKS;
+Uint32 iter_ticks = ITER_MIN_TICKS;
 
-static time_t sleep_until_ = 0;
+static Uint32 sleep_until_ = 0;
 
 void poll_events();
 
 int main (int argc, char **argv)
 {
-    time_t iter_start, delta; /* times */
+    Uint32 iter_start, delta; /* times */
     
     init_menu();
     init_SDL();
     init_levels();
     
-    thegame.running = 1;
-    thegame.in_menu = 1;
+    thegame.running = true;
+    thegame.in_menu = true;
     
     while (thegame.running) {
 	iter_start = SDL_GetTicks();
@@ -40,8 +40,8 @@ int main (int argc, char **argv)
 		    paint_game();
 		} else if (!thegame.running) {
 		    /* level code cannot quit! */
-		    thegame.running = 1;
-		    thegame.in_menu = 1;
+		    thegame.running = true;
+		    thegame.in_menu = true;
 		}
 	    }
 	}
@@ -76,7 +76,7 @@ void poll_events()
 		    case SDLK_RIGHT:	controls_held |= DIR_RIGHT;	break;
 		    case SDLK_RETURN:
 		    case SDLK_SPACE:	controls_held |= CTRL_ENTER;	break;
-		    case SDLK_ESCAPE:	thegame.in_menu = 1;		break;
+		    case SDLK_ESCAPE:	menu_escape();			break;
 		    default: break;
 		};
 		break;;
@@ -92,7 +92,7 @@ void poll_events()
 		};
 		break;;
 	    case SDL_QUIT:
-		thegame.running = 0;
+		thegame.running = false;
 		break;;
 	}
     }
@@ -109,10 +109,10 @@ void poll_events()
     if (held & WPAD_BUTTON_RIGHT)	controls_held |= DIR_RIGHT;
     if (held & WPAD_BUTTON_A)		controls_held |= CTRL_ENTER;
     
-    if (held & WPAD_BUTTON_PLUS)	thegame.in_menu = 1;
+    if (held & WPAD_BUTTON_PLUS)	menu_escape();
     
     if (held & WPAD_BUTTON_HOME) {
-	thegame.running = 0;
+	thegame.running = false;
     }
 
     
@@ -120,7 +120,7 @@ void poll_events()
 # endif
 }
 
-void sleep_for(time_t ms)
+void sleep_for(Uint32 ms)
 {
     sleep_until_ = SDL_GetTicks() + ms;
 }

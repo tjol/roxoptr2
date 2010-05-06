@@ -1,0 +1,119 @@
+dnl This needs some file it can stat
+AC_INIT(README)
+
+AM_INIT_AUTOMAKE(roxoptr2, 0.2)
+
+AC_ARG_WITH([devkitpro],
+	    [AS_HELP_STRING([--with-devkitpro(=path)],
+			    [Build for the Wii with DevkitPro])],
+	    ,
+	    [with_devkitpro=no])
+
+AC_ARG_WITH([devkitppc],
+	    [AS_HELP_STRING([--with-devkitppc=path],
+			    [Build for the Wii with DevkitPro/DevkitPPC])])
+
+AC_ARG_WITH([wii-portlibs],
+	    [AS_HELP_STRING([--with-wii-portlibs=path],
+			    [Specify non-standard location of Wii portlibs])])
+
+if test x"$with_devkitpro" != xno
+then
+    # Wii !
+    if test x"$with_devkitpro" != xyes
+    then
+	DEVKITPRO=$with_devkitpro
+    fi
+    if test x"$with_devkitppc" != xyes && test x"$with_devkitppc" != x
+    then
+	DEVKITPPC=$with_devkitppc
+    fi
+
+    if test -z $DEVKITPRO || test -z $DEVKITPPC
+    then
+	AC_MSG_ERROR([You must set DEVKITPRO and DEVKITPPC or specify the
+		      devkitPro paths with --with-devkitpro=... and 
+		      --with-devkitppc=...])
+    fi
+
+    # devkitPro is set up.
+    PORTLIBS=
+    if test x$with_wii_portlibs != x
+    then
+	PORTLIBS=$with_wii_portlibs
+    else
+	PORTLIBS=${DEVKITPRO}/portlibs/ppc
+    fi
+    host_alias=powerpc-eabi
+    CC=${DEVKITPPC}/bin/powerpc-eabi-gcc
+    cross_compiling=yes
+    MACHDEP="-DGEKKO -mrvl -mcpu=750 -meabi -mhard-float"
+    CFLAGS="${MACHDEP} -I${PORTLIBS}/include -I${DEVKITPRO}/libogc/include"
+    LDFLAGS="${MACHDEP} -L${PORTLIBS}/lib -L${DEVKITPRO}/libogc/lib/wii"
+    LIBS="-lfat -lwiiuse -lbte -logc -lwiikeyboard"
+    ON_WII=yes
+fi
+
+AC_PROG_CC
+AC_PROG_CC_C99
+AC_PROG_INSTALL
+AC_CHECK_PROG([XXD], [xxd], [yes])
+
+if test x$XXD != xyes
+then
+    AC_MSG_ERROR([xxd missing.])
+fi
+
+if test x$ac_cv_prog_cc_c99 = xno
+then
+    AC_MSG_ERROR([Please install an ISO C99 compliant compiler.])
+fi
+
+AC_CHECK_FUNCS([access]) dnl Wii
+dnl strcasecmp should be available on modern Unices, but it might be missing
+dnl on Windows when not using a GNU toolchain. If this was a problem, it
+dnl could be fixed.
+AC_CHECK_FUNC([strcasecmp], [], AC_MSG_ERROR([strcasecmp() function not found. Sorry!]))
+AC_SEARCH_LIBS([pow], [m], , AC_MSG_ERROR([math lib error?]))
+AC_CHECK_LIB([z], [gzopen], , AC_MSG_ERROR([Unable to find zlib]))
+AC_CHECK_LIB([SDL], [SDL_RWFromMem], , AC_MSG_ERROR([Unable to find SDL!]))
+
+if test x$ON_WII = xyes
+then
+    dnl SDL is in @LIBS@, so now I can (and should !) use SDL_main if
+    dnl building for Wii.
+    CFLAGS="$CFLAGS -Dmain=SDL_main"
+
+    dnl Add libs needed by SDL_image and SDL_ttf. Systems using shared
+    dnl libraries don't need to explicitly link them.
+    LIBS="-lpng -ljpeg -lfreetype ${LIBS}"
+fi
+
+AC_CHECK_LIB([SDL_image],
+             [IMG_Load_RW],
+             [LIBS="-lSDL_image $LIBS"],
+             AC_MSG_ERROR([Unable to find SDL_image!]))
+AC_CHECK_HEADER([SDL/SDL_image.h], [],
+             AC_MSG_ERROR([Unable to find SDL_image!]))
+AC_CHECK_LIB([SDL_ttf],
+             [TTF_OpenFontRW],
+             [LIBS="-lSDL_ttf $LIBS"],
+             AC_MSG_ERROR([Unable to find SDL_ttf!]))
+AC_CHECK_HEADER([SDL/SDL_ttf.h], [],
+             AC_MSG_ERROR([Unable to find SDL_ttf!]))
+
+dnl These libs need linking if they exist, but don't have any
+dnl functions that are safe to check for; simply try to link.
+AC_CHECK_LIB([SDLmain], [main])
+AC_CHECK_LIB([mingw32], [main])
+
+
+AC_SUBST([DEVKITPPC])
+AM_CONDITIONAL([ON_WII], [test x$ON_WII = xyes])
+if test x$ON_WII = xyes
+then
+    AC_DEFINE([WII], [1])
+fi
+
+AC_OUTPUT(Makefile source/Makefile leveldata/Makefile sprites/Makefile)
+

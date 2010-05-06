@@ -14,9 +14,8 @@
 
 #define LINE_LENGTH 256
 
-void read_cfg_file(FILE *f, struct cfg_section *sections, 
-                   void (*cb)(struct cfg_section *, const char *, const char *, void *),
-                   void *cb_arg)
+bool read_cfg_file (FILE *f, struct cfg_section *sections,
+		    cfg_callback_f cb, void *cb_arg)
 {
     char line[LINE_LENGTH];
 
@@ -31,7 +30,7 @@ void read_cfg_file(FILE *f, struct cfg_section *sections,
 
     while (!feof(f)) {
 	if (fgets(line, LINE_LENGTH, f) == NULL) {
-	    return;
+	    break;
 	}
 
 	/* strip padding whitespace */
@@ -85,8 +84,11 @@ void read_cfg_file(FILE *f, struct cfg_section *sections,
 		} else {
 		    buf2[0] = '\0';
 		}
-		(*cb)(s, buf1, buf2, cb_arg);
+		if (!((*cb)(s, buf1, buf2, cb_arg))) {
+		    return false;
+		}
 	}
     }
+    return true;
 }
 

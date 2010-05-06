@@ -12,6 +12,7 @@
 
 #include <stdio.h>
 #include <zlib.h>
+#include <string.h>
 #ifdef WII
 # include <fat.h>
 #endif
@@ -19,55 +20,116 @@
 #define R_CHUNK 512
 
 
-static int load_pbm_from(get_chunk_f get_more, void *arg, Level *l);
+static bool
+load_pbm_from(get_chunk_f get_more, void *arg,
+	      unsigned *w, unsigned *h, unsigned char **bitsbuf);
 
+static char *game_inst_path;
 
-int init_fs()
+bool init_fs()
 {
 #ifdef WII
-    static int fs_initialized = 0;
+    static bool fs_initialized = false;
 
     if (!fs_initialized) {
 	if (!fatInitDefault()) {
-	    return 0;
+	    return false;
 	}
 	if (chdir("/roxoptr2") != 0) { /* this replaces the normal CWD */
 	    chdir("/");
 	}
-	fs_initialized = 1;
+	fs_initialized = true;
     }
+#else
+#  ifdef ROXOPTR2_DATADIR
+    if (access("icon.bmp.gz", R_OK) != 0 || access("leveldata", R_OK) != 0) {
+	/* This isn't the installation directory. chdir to the right place. */
+	chdir(ROXOPTR2_DATADIR);
+    }
+#  endif
 #endif
-    return 1;
+    game_inst_path = get_pwd();
+    return true;
 }
 
-int
-load_gzpbm(const char *fname, Level *l)
+char *get_pwd_w_extra(size_t alloc_extra)
+{
+    char *cwd;
+    size_t len = 256;
+
+    cwd = malloc(256);
+    while (!getcwd(cwd, len-alloc_extra)) {
+	if (errno == ERANGE) {
+	    len += 256;
+	    cwd = realloc(cwd, len);
+	} else {
+	    free(cwd);
+	    return NULL;
+	}
+    }
+
+    return cwd;
+}
+
+void chdir_home()
+{
+    (void)chdir(game_inst_path);
+}
+
+char *path_from_home(const char *relp)
+{
+    char *ret = malloc(strlen(game_inst_path) + strlen(relp) + 2);
+    char *cpi, *cpo;
+    for (cpi = game_inst_path, cpo = ret; *cpi; *(cpo++) = *(cpi++));
+    *(cpo++) = '/';
+    strcpy(cpo, relp);
+    return ret;
+}
+
+bool
+load_bitmap(const char *fname, unsigned *w, unsigned *h, unsigned char **bitsbuf)
+{
+    /* file type? */
+    int l = strlen(fname);
+    if (strcasecmp(fname+l-7, ".pbm.gz") == 0) {
+	return load_gzpbm(fname, w, h, bitsbuf);
+    } else if (strcasecmp(fname+l-4, ".pbm") == 0) {
+	return load_pbm(fname, w, h, bitsbuf);
+    } else {
+	fprintf(stderr, "%s: error: unknown bit-map format.\n", fname);
+	return false;
+    }
+}
+
+bool
+load_gzpbm(const char *fname, unsigned *w, unsigned *h, unsigned char **bitsbuf)
 {
     gzFile pf;
 
-    if (!(pf = gzopen(fname, "r"))) {
+    if (!(pf = gzopen(fname, "rb"))) {
 	fprintf(stderr, "Error opening gz file.\n");
-	return 0;
+	return false;
     }
 
-    return load_pbm_from((get_chunk_f)&gz_getchunk, pf, l);
+    return load_pbm_from((get_chunk_f)&gz_getchunk, pf, w, h, bitsbuf);
 }
 
-int
-load_pbm(const char *fname, Level *l)
+bool
+load_pbm(const char *fname, unsigned *w, unsigned *h, unsigned char **bitsbuf)
 {
     FILE *pf;
 
-    if (!(pf = fopen(fname, "r"))) {
+    if (!(pf = fopen(fname, "rb"))) {
 	perror(0);
-	return 0;
+	return false;
     }
 
-    return load_pbm_from((get_chunk_f)&f_getchunk, pf, l);
+    return load_pbm_from((get_chunk_f)&f_getchunk, pf, w, h, bitsbuf);
 }
 
-static int
-load_pbm_from(get_chunk_f get_more, void *arg, Level *l)
+static bool
+load_pbm_from(get_chunk_f get_more, void *arg,
+	      unsigned *w_, unsigned *h_, unsigned char **bitsbuf)
 {
     unsigned char *buf;
     unsigned char *end;
@@ -98,7 +160,7 @@ load_pbm_from(get_chunk_f get_more, void *arg, Level *l)
 	is_ascii = 0;
     } else {
 	fprintf(stderr, "Error: This is not a PBM file.\n");
-	return 0;
+	return false;
     }
 
     buf += 2;
@@ -127,8 +189,8 @@ load_pbm_from(get_chunk_f get_more, void *arg, Level *l)
 		in_header = 0;
 		size_line[i] = '\0';
 		sscanf(size_line, "%d %d", &w, &h);
-		l->w = w;
-		l->h = h;
+		if (w_) *w_ = w;
+		if (h_) *h_ = h;
 		/*temp*/x = ((w+7) >> 3) * h;
 		bits = malloc(x);
 		thisbyte = bits;
@@ -173,8 +235,8 @@ load_pbm_from(get_chunk_f get_more, void *arg, Level *l)
 	    *(thisbyte++) = *(buf++); 
     }
 
-    l->bits = bits;
-    return 1;
+    *bitsbuf = bits;
+    return true;
 }
 
 size_t
@@ -293,4 +355,22 @@ finalize_zlib_getchunk(void *arg)
 
     zlib_getchunk(NULL, &cmd, arg);
 }
+
+
+#if ! HAVE_ACCESS
+int access(const char *pathname, int mode)
+{
+    FILE *fp;
+    int ret;
+    fp = fopen(pathname, "rb");
+    if (fp == NULL) {
+	ret = -1;
+    } else {
+	ret = 0;
+	fclose(fp);
+    }
+    return ret;
+    
+}
+#endif
 

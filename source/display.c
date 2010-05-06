@@ -9,21 +9,25 @@
 
 #include <zlib.h>
 #include "main.h"
+#include "sprite.h"
+#include "filesys.h"
 
 static SDL_Surface *screen = NULL;
-static SDL_Surface *heli = NULL;
 
 TTF_Font *menu_font = NULL;
 TTF_Font *small_font = NULL;
 TTF_Font *huge_font = NULL;
 
-#include "img/heli.png.h"
 #include "data/DejaVuSans-Bold.ttf.h"
 
 static void quit()
 {
-    if (heli) {
-	SDL_FreeSurface(heli);
+    if (classic_heli_sprite) {
+	if (classic_heli_sprite->free_data) {
+	    classic_heli_sprite->free_data(classic_heli_sprite);
+	}
+	free(classic_heli_sprite);
+	classic_heli_sprite = NULL;
     }
     if(menu_font) {
 	TTF_CloseFont(menu_font);
@@ -37,7 +41,7 @@ static void quit()
     SDL_Quit();
 }
 
-SDL_Surface *img_from_mem(void *mem, int size, int alpha)
+SDL_Surface *img_from_mem(void *mem, int size, bool alpha)
 {
     SDL_Surface *load, *ret;
     SDL_RWops *rw;
@@ -57,14 +61,6 @@ SDL_Surface *img_from_mem(void *mem, int size, int alpha)
 
 void init_SDL()
 {
-    gzFile icon_file;
-    unsigned char *icon_buf;
-    unsigned int bufsize = 4096;
-    unsigned int len = 0;
-    unsigned int d;
-    SDL_Surface *icon;
-    SDL_RWops *icon_rw;
-
     if (SDL_Init(SDL_INIT_VIDEO) != 0) {
 	fprintf(stderr, "Unable to initialize SDL: %s\n", SDL_GetError());
 	exit(1);
@@ -101,22 +97,32 @@ void init_SDL()
 # ifndef WII
     SDL_WM_SetCaption("roxoptr2", "roxoptr2");
 
-    icon_buf = malloc(bufsize);
-    icon_file = gzopen("icon.bmp.gz", "rb");
-    while (d = gzread(icon_file, icon_buf+len, bufsize-len)) {
-	len += d;
-	if (len == bufsize) {
-	    bufsize += 4096;
-	    icon_buf = realloc(icon_buf, bufsize);
+    init_fs();
+
+    unsigned int bufsize = 4096;
+    unsigned char *icon_buf = malloc(bufsize);
+    gzFile icon_file = gzopen("icon.bmp.gz", "rb");
+    unsigned int len = 0;
+    unsigned int d;
+
+    if (icon_file) {
+	while (d = gzread(icon_file, icon_buf+len, bufsize-len)) {
+	    len += d;
+	    if (len == bufsize) {
+		bufsize += 4096;
+		icon_buf = realloc(icon_buf, bufsize);
+	    }
 	}
+	SDL_RWops *icon_rw = SDL_RWFromMem(icon_buf, len);
+	SDL_Surface *icon = SDL_LoadBMP_RW(icon_rw, 0);
+	SDL_FreeRW(icon_rw);
+	gzclose(icon_file);
+	free(icon_buf);
+	SDL_SetColorKey(icon, SDL_SRCCOLORKEY, SDL_MapRGB(icon->format, 0xff, 0xff, 0x00));
+	SDL_WM_SetIcon(icon, NULL);
+    } else {
+	fprintf(stderr, "Cannot open icon file. Are we in the right directory?\n");
     }
-    icon_rw = SDL_RWFromMem(icon_buf, len);
-    icon = SDL_LoadBMP_RW(icon_rw, 0);
-    SDL_FreeRW(icon_rw);
-    gzclose(icon_file);
-    free(icon_buf);
-    SDL_SetColorKey(icon, SDL_SRCCOLORKEY, SDL_MapRGB(icon->format, 0xff, 0xff, 0x00));
-    SDL_WM_SetIcon(icon, NULL);
 # endif   
     
     screen = SDL_SetVideoMode(SCREEN_W, SCREEN_H, SCREEN_DEPTH, SDL_DOUBLEBUF | SDL_HWSURFACE);
@@ -125,13 +131,16 @@ void init_SDL()
 	exit(1);
     }
 
-    heli = img_from_mem(heli_png, heli_png_len, 1);
+    classic_heli_sprite = load_heli();
+    /*  this is the responsability of start_level().
+    thegame.main_sprite = classic_heli_sprite; */
 }
 
 void paint_game()
 {
     SDL_Rect bg_rect;
     SDL_Rect heli_dest;
+    Overlay *lov;
     
     bg_rect.x = thegame.xpos;
     bg_rect.y = thegame.ypos;
@@ -140,12 +149,15 @@ void paint_game()
     
     heli_dest.x = thegame.heli_xpos - thegame.xpos;
     heli_dest.y = thegame.heli_ypos - thegame.ypos;
-    heli_dest.w = HELI_W;
-    heli_dest.h = HELI_H;
     
     SDL_BlitSurface(thegame.current_level->bg, &bg_rect, screen, NULL);
-    SDL_BlitSurface(heli, NULL, screen, &heli_dest);
-    
+
+    for (lov = thegame.current_level->overlays; lov; lov = lov->next) {
+	lov->paint(thegame.current_level, lov, screen);
+    }
+
+    animate_sprite(thegame.main_sprite, screen, &heli_dest);
+
     SDL_Flip(screen);
 }
 
@@ -181,7 +193,7 @@ void paint_menu()
     SDL_Flip(screen);
 }
 
-void paint_banner(char *text1, char *text2, int r2, int g2, int b2, int delay)
+void paint_banner(char *text1, char *text2, int r2, int g2, int b2, Uint32 delay)
 {
     SDL_Color bg = {0,0,0};
     SDL_Color white = {255,255,255};
@@ -209,3 +221,14 @@ void paint_banner(char *text1, char *text2, int r2, int g2, int b2, int delay)
     
     sleep_for(delay);
 }
+
+void paint_pixels(SDL_Surface *s, Uint32 delay)
+{
+    SDL_BlitSurface(s, NULL, screen, NULL);
+
+    SDL_Flip(screen);
+    sleep_for(delay);
+}
+
+
+

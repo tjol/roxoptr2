@@ -1,11 +1,11 @@
-Copyright (C) 2010, Thomas Jollans
+Copyright (C) 2010 Thomas Jollans, Nick Bay
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+of this software and associated artwork and documentation files (the
+"Software"), to deal in the Software without restriction, including without
+limitation the rights to use, copy, modify, merge, publish, distribute,
+sublicense, and/or sell copies of the Software, and to permit persons to whom
+the Software is furnished to do so, subject to the following conditions:
 
 The above copyright notice and this permission notice shall be included in
 all copies or substantial portions of the Software.
@@ -28,10 +28,6 @@ Exceptions:
 Portions of the file "source/data/DejaVuSans-Bold.ttf" are
 Copyright (c) Bitstream, Inc. (see below) Changes made by the DejaVu
 project are in the public domain.
-
-The file "source/img/heli.png" was retrieved from the OpenClipArt library
-and is in the public domain.
-
 
 Bitstream Vera Fonts Copyright
 ------------------------------
