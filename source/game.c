@@ -140,7 +140,7 @@ collide_bitmaps (Uint8 *a, int a_w, int a_h, int a_x, int a_y,
 								    - a_x/8 + 1)
 							    : &default_byte;
 	    } else {
-		a_byte1 = a_byte2 = &default_byte;
+		a_byte1 = a_byte0 = a_byte2 = &default_byte;
 	    }
 	    b_byte = b + (y-b_y)*b_byte_w + (x-b_x)/8;
 	    shifted = ((*a_byte0 << 16 | *a_byte1 << 8 | *a_byte2) >> bit_delta) & 0xff;
