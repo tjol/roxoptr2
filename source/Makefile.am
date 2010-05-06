@@ -10,7 +10,8 @@ roxoptr2_SOURCES = main.c main.h display.c display.h game.c game.h \
 		   levels.c level.h menu.c menu.h \
 		   sprite.c sprite.h overlays.c overlays.h \
 		   cfgparser.c cfgparser.h filesys.c filesys.h \
-		   levels/level_tpl.h levels/lv0/lv0.c levels/lv0/lv0.xbm
+		   levels/level_tpl.h levels/lv0/lv0.c levels/lv0/lv0.xbm \
+		   img/heli.xbm
 nodist_roxoptr2_SOURCES = data/DejaVuSans-Bold.ttf.h \
 			  img/heli.png.h img/credits.png.h \
 			  levels/lv0/lv0.gif.h
@@ -23,7 +24,8 @@ BUILT_SOURCES = data/DejaVuSans-Bold.ttf.h \
 		img/heli.png.h img/credits.png.h \
 		levels/lv0/lv0.gif.h
 
-EXTRA_DIST = data/DejaVuSans-Bold.ttf img/heli.png \
+EXTRA_DIST = data/DejaVuSans-Bold.ttf \
+			 img/heli.png img/credits.png \
 			 levels/lv0/lv0.gif
 CLEANFILES = data/DejaVuSans-Bold.ttf.h \
 			 img/heli.png.h img/credits.png.h \
