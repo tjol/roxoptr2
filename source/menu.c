@@ -56,7 +56,6 @@ static void quitgame(void *x)
 }
 
 static void levelmenu(void *);
-static void credits_page(void *);
 static void menu_up(void *);
 
 void free_root_menu()
@@ -178,7 +177,8 @@ static void levelmenu(void *x)
     menu_current = mtop;
 }
 
-static void credits_page(void *x)
+void
+credits_page(void *x)
 {
     SDL_Surface *credits_s = img_from_mem(credits_png, credits_png_len, false);
     menu_current = NULL;
