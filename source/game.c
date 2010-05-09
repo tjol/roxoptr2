@@ -9,6 +9,7 @@
 
 #include "game.h"
 #include "main.h"
+#include "menu.h"
 #include "sprite.h"
 #include <stdbool.h>
 
@@ -95,6 +96,10 @@ void game_tic()
 	paint_banner("You actually made it!", "WIN", 0, 255, 0, 5000);
 	
 	thegame.running = start_level(current_level->next);
+	if (!thegame.running) { /* last level */
+	    SDL_Delay(5000);
+	    credits_page(0);
+	}
     }
     
 }

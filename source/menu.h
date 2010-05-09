@@ -36,5 +36,7 @@ void menu_escape();
 
 void menu_tic();
 
+void credits_page(void *);
+
 #endif
 
