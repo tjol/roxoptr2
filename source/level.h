@@ -47,6 +47,7 @@ struct level_ {
     
     unsigned int fin_x; /*!< \brief position of horizontal finish line. */
     unsigned int fin_y; /*!< \brief position of vertical finish line. */
+    bool fin_both;      /*!< \brief whether or not both finish lines need be crossed. */
     
     unsigned int heli_x0; /*!< \brief initial position of heli (X value) */
     unsigned int heli_y0; /*!< \brief initial position of heli (Y value) */
