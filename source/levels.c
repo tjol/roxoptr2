@@ -173,6 +173,12 @@ load_callback(struct cfg_section *sect, const char *key, const char *value, void
 		sscanf(value, "%u %u", &xu, &yu);
 		ll->level->fin_x = xu;
 		ll->level->fin_y = yu;
+		ll->level->fin_both = false;
+	    } else if (strcasecmp(key, "end_corner") == 0) {
+		sscanf(value, "%u %u", &xu, &yu);
+		ll->level->fin_x = xu;
+		ll->level->fin_y = yu;
+		ll->level->fin_both = true;
 	    } else if (strcasecmp(key, "null_velocity") == 0) {
 		sscanf(value, "%lf %lf", &xd, &yd);
 		ll->level->vx = xd;

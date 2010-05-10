@@ -44,6 +44,7 @@ static Level *load_()
     level->visible_t = VI_T;
     level->fin_x = FIN_X;
     level->fin_y = FIN_Y;
+    level->fin_both = false;
     level->heli_x0 = X0;
     level->heli_y0 = Y0;
     level->controls = CONTROLS;
