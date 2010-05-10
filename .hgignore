@@ -1,0 +1,27 @@
+syntax: glob
+
+*~
+.*sw?
+*.o
+doc/
+roxoptr2
+
+leveldata/Makefile.am
+sprites/Makefile.am
+configure
+config.*
+.deps/
+Makefile
+Makefile.in
+autom4te.cache/
+aclocal.m4
+missing
+depcomp
+install-sh
+
+build*/
+
+syntax: re
+
+^source/.*\.(png|gif|ttf)\.h$
+
