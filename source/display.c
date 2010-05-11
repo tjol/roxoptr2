@@ -103,7 +103,7 @@ void init_SDL()
 	SDL_FreeRW(icon_rw);
 	gzclose(icon_file);
 	free(icon_buf);
-	SDL_SetColorKey(icon, SDL_SRCCOLORKEY, SDL_MapRGB(icon->format, 0xff, 0xff, 0x00));
+	SDL_SetColorKey(icon, SDL_SRCCOLORKEY, SDL_MapRGB(icon->format, 0xff, 0xff, 0xff));
 	SDL_WM_SetIcon(icon, NULL);
     } else {
 	fprintf(stderr, "Cannot open icon file. Are we in the right directory?\n");
