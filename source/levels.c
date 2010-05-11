@@ -108,12 +108,28 @@ void free_levels()
     levels = NULL;
 }
 
+void unload_level(LevelList *ll)
+{
+    if (ll->level != NULL) {
+	ll->level->unload(ll->level);
+	ll->level = NULL;
+    }
+}
+
 bool start_level(LevelList *ll)
 {
+    LevelList *list;
+
     if (!ll) return 0;
+
+    for (list = levels; list; list = list->next) {
+	if (list != ll && list->level != NULL) {
+	    unload_level(list);
+	}
+    }
     
     if (! ll->level) {
-	ll->level = ll->load();
+	ll->level = ll->load(ll->load_arg);
     }
     
     thegame.xpos = thegame.ypos = 0;
@@ -131,15 +147,23 @@ bool start_level(LevelList *ll)
     return 1;
 }
 
+struct level_cfg_info {
+    Level *base_l;
+    char *working_dir;
+    char *bitmap_path;
+    char *bg_path;
+};
+
 bool
 load_callback(struct cfg_section *sect, const char *key, const char *value, void *ll_)
 {
     LevelList *ll = ll_;
-    SDL_Surface *bg_l;
+    struct level_cfg_info *infop = ll->load_arg;
+
     double xd,yd;
     unsigned int xu, yu;
     double visible;
-    int ok;
+    bool ok;
 
     struct ov_info {
 	struct overlay_type *t;
@@ -152,43 +176,34 @@ load_callback(struct cfg_section *sect, const char *key, const char *value, void
 	    if (strcasecmp(key, "name") == 0) {
 		ll->title = strdup(value);
 	    } else if (strcasecmp(key, "bits") == 0) {
-		ok = load_bitmap(value, &ll->level->w, &ll->level->h, &ll->level->bits);
-
-		if (!ok) {
-		    fprintf(stderr, "Error loading bit-map.\n");
-		    return false;
-		}
+		/* lazy-load bitmap */
+		infop->bitmap_path = strdup(value);
 	    } else if (strcasecmp(key, "background") == 0) {
-		if (!(bg_l = img_from_file(value))) {
-		    fprintf(stderr, "Error loading background: %s\n", IMG_GetError());
-		    return false;
-		}
-		ll->level->bg = SDL_DisplayFormat(bg_l);
-		SDL_FreeSurface(bg_l);
+		infop->bg_path = strdup(value);
 	    } else if (strcasecmp(key, "start") == 0) {
 		sscanf(value, "%u %u", &xu, &yu);
-		ll->level->heli_x0 = xu;
-		ll->level->heli_y0 = yu;
+		infop->base_l->heli_x0 = xu;
+		infop->base_l->heli_y0 = yu;
 	    } else if (strcasecmp(key, "end") == 0) {
 		sscanf(value, "%u %u", &xu, &yu);
-		ll->level->fin_x = xu;
-		ll->level->fin_y = yu;
-		ll->level->fin_both = false;
+		infop->base_l->fin_x = xu;
+		infop->base_l->fin_y = yu;
+		infop->base_l->fin_both = false;
 	    } else if (strcasecmp(key, "end_corner") == 0) {
 		sscanf(value, "%u %u", &xu, &yu);
-		ll->level->fin_x = xu;
-		ll->level->fin_y = yu;
-		ll->level->fin_both = true;
+		infop->base_l->fin_x = xu;
+		infop->base_l->fin_y = yu;
+		infop->base_l->fin_both = true;
 	    } else if (strcasecmp(key, "null_velocity") == 0) {
 		sscanf(value, "%lf %lf", &xd, &yd);
-		ll->level->vx = xd;
-		ll->level->vy = yd;
+		infop->base_l->vx = xd;
+		infop->base_l->vy = yd;
 	    } else if (strcasecmp(key, "velocity_delta") == 0) {
 		sscanf(value, "%lf %lf", &xd, &yd);
-		ll->level->Dvx = xd;
-		ll->level->Dvy = yd;
+		infop->base_l->Dvx = xd;
+		infop->base_l->Dvy = yd;
 	    } else if (strcasecmp(key, "sprite") == 0) {
-		if (!(ll->level->main_sprite = find_sprite(value))) {
+		if (!(infop->base_l->main_sprite = find_sprite(value))) {
 		    fprintf(stderr, "Error loading sprite\n");
 		    return false;
 		}
@@ -198,13 +213,13 @@ load_callback(struct cfg_section *sect, const char *key, const char *value, void
 	    sscanf(value, "%lf%%", &visible);
 	    visible /= 100.0;
 	    if (strcasecmp(key, "right") == 0) {
-		ll->level->visible_r = visible;
+		infop->base_l->visible_r = visible;
 	    } else if (strcasecmp(key, "left") == 0) {
-		ll->level->visible_l = visible;
+		infop->base_l->visible_l = visible;
 	    } else if (strcasecmp(key, "top") == 0) {
-		ll->level->visible_t = visible;
+		infop->base_l->visible_t = visible;
 	    } else if (strcasecmp(key, "bottom") == 0) {
-		ll->level->visible_b = visible;
+		infop->base_l->visible_b = visible;
 	    }
 	    break;;
 	case 3: /* [controls] */
@@ -214,34 +229,34 @@ load_callback(struct cfg_section *sect, const char *key, const char *value, void
 		case 'N': 
 		case 'f': 
 		case 'F': 
-		    ok = 0;
+		    ok = false;
 		    break;;
 		default:
 		    if (strcasecmp(value, "off") == 0) {
-			ok = 0;
+			ok = false;
 		    } else {
-			ok = 1;
+			ok = true;
 		    }
 	    }
 	    if (!ok) break;
 
 	    /* else: */
 	    if (strcasecmp(key, "right") == 0) {
-		ll->level->controls |= DIR_RIGHT;
+		infop->base_l->controls |= DIR_RIGHT;
 	    } else if (strcasecmp(key, "left") == 0) {
-		ll->level->controls |= DIR_LEFT;
+		infop->base_l->controls |= DIR_LEFT;
 	    } else if (strcasecmp(key, "up") == 0) {
-		ll->level->controls |= DIR_UP;
+		infop->base_l->controls |= DIR_UP;
 	    } else if (strcasecmp(key, "down") == 0) {
-		ll->level->controls |= DIR_DOWN;
+		infop->base_l->controls |= DIR_DOWN;
 	    }
 
 	    break;;
 
 	case 4: /* overlay */
-	    ov_infop = ll->level->internal;
+	    ov_infop = infop->base_l->internal;
 	    if (strcasecmp(key, "type") == 0) {
-		if (ll->level->overlays == NULL) {
+		if (infop->base_l->overlays == NULL) {
 		    ov_infop = malloc(sizeof(struct ov_info));
 		}
 		if (!(ov_infop->t = get_overlay_type(value))) {
@@ -249,13 +264,13 @@ load_callback(struct cfg_section *sect, const char *key, const char *value, void
 		    return false;
 		}
 		lop = ov_infop->t->alloc(ov_infop->t);
-		if (ll->level->overlays == NULL) {
-		    ll->level->overlays = lop;
+		if (infop->base_l->overlays == NULL) {
+		    infop->base_l->overlays = lop;
 		} else {
 		    ov_infop->o->next = lop;
 		}
 		ov_infop->o = lop;
-		ll->level->internal = ov_infop;
+		infop->base_l->internal = ov_infop;
 	    } else {
 		ov_infop->t->construct(ov_infop->o, key, value);
 	    }
@@ -265,12 +280,48 @@ load_callback(struct cfg_section *sect, const char *key, const char *value, void
     return true;
 }
 
+Level *
+_load_level(struct level_cfg_info *infop)
+{
+    Level *l = infop->base_l;
+    bool ok;
+    SDL_Surface *bg_l;
+
+    chdir(infop->working_dir);
+
+    ok = load_bitmap(infop->bitmap_path, &l->w, &l->h, &l->bits);
+    if (!ok) {
+	fprintf(stderr, "Error loading bit-map.\n");
+	return NULL;
+    }
+
+    if (!(bg_l = img_from_file(infop->bg_path))) {
+	fprintf(stderr, "Error loading background: %s\n", IMG_GetError());
+	return false;
+    }
+    l->bg = SDL_DisplayFormat(bg_l);
+    SDL_FreeSurface(bg_l);
+
+    l->internal = infop;
+
+    chdir_home();
+
+    return l;
+}
+
 void
-_del_level(Level *l)
+_unload_level(Level *l)
 {
     SDL_FreeSurface(l->bg);
     free(l->bits);
+}
 
+
+void
+_del_level(Level *l)
+{
+    _unload_level(l);
+    free(l->internal);
     free(l);
 }
 
@@ -282,6 +333,7 @@ load_level_from_cfg(char *filename, LevelList *prev)
 
     LevelList *ll;
     Level *l;
+    struct level_cfg_info *infop;
 
     static struct cfg_section sections[] = {
 	{ 1, "level" },
@@ -296,25 +348,30 @@ load_level_from_cfg(char *filename, LevelList *prev)
 	return NULL;
     }
 
-    /* chdir to the right place, since paths are relative */
-    for (cp = filename; *cp; ++cp) if (*cp == '/') cp0 = cp;
-    *cp0 = '\0';
-    chdir(filename);
-    *cp0 = '/';
-
     /* create scratch Level/LevelList */
     ll = malloc(sizeof(LevelList));
     l = malloc(sizeof(Level));
-    ll->level = l;
+    infop = malloc(sizeof(struct level_cfg_info));
+    infop->base_l = l;
+    ll->level = NULL;
     ll->prev = prev;
     ll->next = NULL;
-    ll->load = NULL;
+    ll->load = &_load_level;
+    ll->load_arg = infop;
 
     l->visible_r = l->visible_l = l->visible_t = l->visible_b = 0.2;
     l->controls = 0;
     l->del = &_del_level;
+    l->unload = &_unload_level;
     l->main_sprite = NULL; 
     l->overlays = NULL;
+
+    /* chdir to the right place, since paths are relative */
+    for (cp = filename; *cp; ++cp) if (*cp == '/') cp0 = cp;
+    *cp0 = '\0';
+    chdir(filename);
+    infop->working_dir = strdup(filename);
+    *cp0 = '/';
 
     if (!read_cfg_file(f_cfg, sections, &load_callback, ll)) {
 	free(ll->level);

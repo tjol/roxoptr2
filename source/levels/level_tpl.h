@@ -14,9 +14,13 @@
 #include "../level.h"
 #include "../display.h"
 
-static void del_(Level *lv)
+static void unload_(Level *lv)
 {
     SDL_FreeSurface(lv->bg);
+}
+static void del_(Level *lv)
+{
+    unload_(lv);
     free(lv);
 }
 
@@ -49,6 +53,7 @@ static Level *load_()
     level->heli_y0 = Y0;
     level->controls = CONTROLS;
     level->del = del_;
+    level->unload = unload_;
     level->main_sprite = NULL;
     level->overlays = NULL;
         

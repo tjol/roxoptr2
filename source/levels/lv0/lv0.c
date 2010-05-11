@@ -36,4 +36,4 @@
 
 #include "../level_tpl.h"
 
-Level *load_lv0() { return load_(); }
+Level *load_lv0(void *nothing) { return load_(); }
