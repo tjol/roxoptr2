@@ -131,6 +131,8 @@ bool start_level(LevelList *ll)
     if (! ll->level) {
 	ll->level = ll->load(ll->load_arg);
     }
+    /* this probably took some time. calm down the game timer. */
+    sleep_for(100);
     
     thegame.xpos = thegame.ypos = 0;
     thegame.current_level = ll->level;
