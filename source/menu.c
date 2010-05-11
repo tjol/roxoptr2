@@ -99,7 +99,7 @@ void init_menu()
     mcredits->exec = &credits_page;
     
     mquit->text = "Quit";
-    mquit->up   = mlevels;
+    mquit->up   = mcredits;
     mquit->down = mquit;
     mquit->exec = &quitgame;
     
@@ -180,7 +180,11 @@ static void levelmenu(void *x)
 void
 credits_page(void *x)
 {
-    SDL_Surface *credits_s = img_from_mem(credits_png, credits_png_len, false);
+    static SDL_Surface *credits_s = NULL;
+    if (credits_s == NULL) {
+	credits_s = img_from_mem(credits_png, credits_png_len, false);
+    }
+
     menu_current = NULL;
     paint_pixels(credits_s, 2000);
 }

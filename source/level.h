@@ -64,8 +64,18 @@ struct level_ {
      */
     Overlay *overlays;
     
-    /*! \brief Destructor function. */
+    /*! \brief Destructor function.
+     *
+     * Deallocate the level completely. The level need not be loadable afterwards.
+     */
     void (*del)(Level *);
+
+    /*! \brief Unload level.
+     *
+     * This function must leave the #Level in a loadable state:
+     * LevelList::load must still work.
+     */
+    void (*unload)(Level *);
 
     /*! \brief usable by custom levels. */
     void *internal;
@@ -93,7 +103,8 @@ struct levellist_ {
     LevelList *prev;
     LevelList *next;
     
-    Level *(*load)(void);
+    Level *(*load)(void *arg);
+    void *load_arg;
     
     char *title;
 };
@@ -104,8 +115,9 @@ extern LevelList *current_level;
 extern LevelList *levels;
 
 void init_levels();
-void del_levels();
+void free_levels();
 
+void unload_level(LevelList *ll);
 bool start_level(LevelList *ll);
 
 #endif

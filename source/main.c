@@ -20,8 +20,8 @@ int main (int argc, char **argv)
 {
     Uint32 iter_start, delta; /* times */
     
-    init_menu();
     init_SDL();
+    init_menu();
     init_levels();
     
     thegame.running = true;
@@ -122,5 +122,8 @@ void poll_events()
 
 void sleep_for(Uint32 ms)
 {
-    sleep_until_ = SDL_GetTicks() + ms;
+    int until = SDL_GetTicks() + ms;
+    if (until > sleep_until_) {
+	sleep_until_ = until;
+    }
 }
