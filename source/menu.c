@@ -99,7 +99,7 @@ void init_menu()
     mcredits->exec = &credits_page;
     
     mquit->text = "Quit";
-    mquit->up   = mlevels;
+    mquit->up   = mcredits;
     mquit->down = mquit;
     mquit->exec = &quitgame;
     
