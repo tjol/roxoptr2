@@ -14,6 +14,7 @@ roxoptr2_SOURCES = main.c main.h display.c display.h game.c game.h \
 		   img/heli.xbm
 nodist_roxoptr2_SOURCES = data/DejaVuSans-Bold.ttf.h \
 			  img/heli.png.h img/credits.png.h \
+			  img/menu_bg.png.h img/logo.png.h \
 			  levels/lv0/lv0.gif.h
 
 boot_elf_SOURCES = $(roxoptr2_SOURCES)
@@ -22,13 +23,16 @@ boot_dol_SOURCES =
 
 BUILT_SOURCES = data/DejaVuSans-Bold.ttf.h \
 		img/heli.png.h img/credits.png.h \
+		img/menu_bg.png.h img/logo.png.h \
 		levels/lv0/lv0.gif.h
 
 EXTRA_DIST = data/DejaVuSans-Bold.ttf \
-			 img/heli.png img/credits.png \
-			 levels/lv0/lv0.gif
+	     img/heli.png img/credits.png \
+	     img/menu_bg.png img/logo.png \
+	     levels/lv0/lv0.gif
 CLEANFILES = data/DejaVuSans-Bold.ttf.h \
-			 img/heli.png.h img/credits.png.h \
+	     img/heli.png.h img/credits.png.h \
+	     img/menu_bg.png.h img/logo.png.h \
 	     levels/lv0/lv0.gif.h
 
 XTOHTRICK = mkdir -p `dirname $@`; \
@@ -49,6 +53,12 @@ img/heli.png.h: img/heli.png
 	$(XTOHTRICK)
 
 img/credits.png.h: img/credits.png
+	$(XTOHTRICK)
+
+img/logo.png.h: img/logo.png
+	$(XTOHTRICK)
+
+img/menu_bg.png.h: img/menu_bg.png
 	$(XTOHTRICK)
 
 levels/lv0/lv0.gif.h: levels/lv0/lv0.gif

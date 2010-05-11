@@ -18,7 +18,12 @@ TTF_Font *menu_font = NULL;
 TTF_Font *small_font = NULL;
 TTF_Font *huge_font = NULL;
 
+static SDL_Surface *menu_bg = NULL;
+static SDL_Surface *logo = NULL;
+
 #include "data/DejaVuSans-Bold.ttf.h"
+#include "img/menu_bg.png.h"
+#include "img/logo.png.h"
 
 static void quit()
 {
@@ -70,29 +75,9 @@ void init_SDL()
     
 # ifdef WII
     WPAD_Init();
-    SDL_Delay(2000);
-    SDL_ShowCursor(SDL_DISABLE);
 # endif
 
-    if (TTF_Init() != 0) {
-	fprintf(stderr, "Unable to initialize TTF subsystem: %s\n", TTF_GetError());
-	exit(1);
-    }
-    
-    menu_font = TTF_OpenFontRW(SDL_RWFromConstMem(DejaVuSans_Bold_ttf,
-						  DejaVuSans_Bold_ttf_len),
-			       1, 40);
-    small_font= TTF_OpenFontRW(SDL_RWFromConstMem(DejaVuSans_Bold_ttf,
-						  DejaVuSans_Bold_ttf_len),
-			       1, 24);
-    huge_font = TTF_OpenFontRW(SDL_RWFromConstMem(DejaVuSans_Bold_ttf,
-						  DejaVuSans_Bold_ttf_len),
-			       1, 200);
-    
-    if (!(menu_font && small_font && huge_font)) {
-	fprintf(stderr, "Unable to load font: %s\n", TTF_GetError());
-	exit(1);
-    }
+    SDL_ShowCursor(SDL_DISABLE);
 
 # ifndef WII
     SDL_WM_SetCaption("roxoptr2", "roxoptr2");
@@ -128,6 +113,42 @@ void init_SDL()
     screen = SDL_SetVideoMode(SCREEN_W, SCREEN_H, SCREEN_DEPTH, SDL_DOUBLEBUF | SDL_HWSURFACE);
     if (!screen) {
 	fprintf(stderr, "Unable to set video: %s\n", SDL_GetError());
+	exit(1);
+    }
+
+    menu_bg = img_from_mem(menu_bg_png, menu_bg_png_len, false);
+    if (menu_bg) {
+	SDL_BlitSurface(menu_bg, NULL, screen, NULL);
+    } else {
+	fprintf(stderr, "unable to load menu background!\n");
+	exit(1);
+    }
+
+    logo = img_from_mem(logo_png, logo_png_len, true);
+    if (logo) {
+	SDL_Rect r;
+	r.x = 114, r.y = 172;
+	SDL_BlitSurface(logo, NULL, screen, &r);
+	SDL_Flip(screen);
+	sleep_for(3000);
+    }
+    if (TTF_Init() != 0) {
+	fprintf(stderr, "Unable to initialize TTF subsystem: %s\n", TTF_GetError());
+	exit(1);
+    }
+    
+    menu_font = TTF_OpenFontRW(SDL_RWFromConstMem(DejaVuSans_Bold_ttf,
+						  DejaVuSans_Bold_ttf_len),
+			       1, 40);
+    small_font= TTF_OpenFontRW(SDL_RWFromConstMem(DejaVuSans_Bold_ttf,
+						  DejaVuSans_Bold_ttf_len),
+			       1, 24);
+    huge_font = TTF_OpenFontRW(SDL_RWFromConstMem(DejaVuSans_Bold_ttf,
+						  DejaVuSans_Bold_ttf_len),
+			       1, 200);
+    
+    if (!(menu_font && small_font && huge_font)) {
+	fprintf(stderr, "Unable to load font: %s\n", TTF_GetError());
 	exit(1);
     }
 
@@ -171,13 +192,14 @@ void paint_menu()
     Menu *m;
     int y = 50;
     
-    SDL_FillRect(screen, NULL, SDL_MapRGB(screen->format, 0xFF, 0xFF, 0xFF));
+    /*SDL_FillRect(screen, NULL, SDL_MapRGB(screen->format, 0xFF, 0xFF, 0xFF));*/
+    SDL_BlitSurface(menu_bg, NULL, screen, NULL);
     
     m = menu_current;
     for (i = 0; i < 3 && m != m->up; ++i) m = m->up;
     
     while (1) {
-	s = TTF_RenderText_Shaded(menu_font, m->text, (m == menu_current ? red : grey), bg);
+	s = TTF_RenderText_Blended(menu_font, m->text, (m == menu_current ? red : grey));
 	dst.x = 320 - s->w/2;
 	dst.y = y;
 	y += 90;

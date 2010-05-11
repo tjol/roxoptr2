@@ -20,8 +20,8 @@ int main (int argc, char **argv)
 {
     Uint32 iter_start, delta; /* times */
     
-    init_menu();
     init_SDL();
+    init_menu();
     init_levels();
     
     thegame.running = true;
