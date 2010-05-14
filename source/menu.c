@@ -20,7 +20,12 @@ void menu_tic()
 {
     static directional_t old_controls = 0;
  
-    if (!menu_current) return; /* NULL menu */
+    if (!menu_current) { /* NULL menu */
+	if (controls_held & CTRL_ENTER) {
+	    menu_escape();
+	}
+	return;
+    }
 
     if (!menu_painted) {
 	paint_menu();
