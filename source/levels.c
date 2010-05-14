@@ -43,6 +43,7 @@ void init_levels()
     char *cwda;
     char *cwd_end;
     
+    /* "classic" lv0 as an example of a compiled in level - disabled.
     lv0 = malloc(sizeof(LevelList));
     
     lv0->level = NULL;
@@ -50,9 +51,11 @@ void init_levels()
     lv0->next = NULL;
     lv0->load = &load_lv0;
     lv0->title = "Level #0";
+    */
     
     cur = NULL;
-    prev = lv0;
+    /* prev = lv0; */
+    prev = NULL;
     
     init_fs();
 
@@ -78,7 +81,7 @@ void init_levels()
 
 	    cur = load_level_from_cfg(cwda, prev);
 	    if (cur) {
-		prev->next = cur;
+		if (prev) prev->next = cur;
 		prev = cur;
 	    }
 
@@ -88,7 +91,8 @@ void init_levels()
     free(cwda);
     chdir_home();
 
-    current_level = levels = lv0;
+    for (; cur->prev; cur = cur->prev);
+    current_level = levels = cur;
     
     atexit(free_levels);
 }
