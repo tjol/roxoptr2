@@ -1,11 +1,11 @@
 #!/bin/sh
 
 gendatamakefile () {
-    if which hg >/dev/null && test -d .hg
+    if which git >/dev/null && test -d .git
     then
-        files=`hg manifest | grep "^$1/"`
+        files=`git ls-files | grep "^$1/"`
     else
-        echo WARNING: hg is not installed, or this is not in a Mercurial repo!
+        echo WARNING: git is not installed, or this is not in a git repo!
         echo "         falling back to find."
         files=`find leveldata -type f -not \( -name '*Makefile*' -o -name '*~' -o -name '.*.sw?' \)`
     fi
